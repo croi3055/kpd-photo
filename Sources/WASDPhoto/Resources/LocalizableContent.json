@@ -1,0 +1,271 @@
+{
+  "openFolder": {
+    "english": "Open Folder",
+    "chinese": "打开文件夹"
+  },
+  "openFolderMenu": {
+    "english": "Open Folder...",
+    "chinese": "打开文件夹..."
+  },
+  "aboutMenu": {
+    "english": "About WASD Photo",
+    "chinese": "关于 WASD Photo"
+  },
+  "settingsMenu": {
+    "english": "Settings...",
+    "chinese": "设置..."
+  },
+  "quitMenu": {
+    "english": "Quit WASD Photo",
+    "chinese": "退出 WASD Photo"
+  },
+  "undo": {
+    "english": "Undo",
+    "chinese": "撤销"
+  },
+  "confirmDeletes": {
+    "english": "Confirm Delete",
+    "chinese": "确认删除"
+  },
+  "movePhotosToTrashTitle": {
+    "english": "Delete Items?",
+    "chinese": "确认删除？"
+  },
+  "cancel": {
+    "english": "Cancel",
+    "chinese": "取消"
+  },
+  "ok": {
+    "english": "OK",
+    "chinese": "好"
+  },
+  "moveToTrash": {
+    "english": "Mark for Deletion",
+    "chinese": "加入垃圾桶"
+  },
+  "trashBin": {
+    "english": "Trash",
+    "chinese": "垃圾桶"
+  },
+  "emptyTrash": {
+    "english": "Delete All",
+    "chinese": "全部删除"
+  },
+  "moveSelectedToTrash": {
+    "english": "Delete Selected",
+    "chinese": "删除所选"
+  },
+  "restoreSelected": {
+    "english": "Restore Selected",
+    "chinese": "恢复所选项目"
+  },
+  "selectAll": {
+    "english": "Select All",
+    "chinese": "全选"
+  },
+  "emptyTrashTitle": {
+    "english": "Delete Items?",
+    "chinese": "确认删除？"
+  },
+  "emptyTrashMessage": {
+    "english": "Delete %@ item(s)? They will move to the system Trash.",
+    "chinese": "删除 %@ 个项目？"
+  },
+  "closeWithTrashTitle": {
+    "english": "Trash Has Items",
+    "chinese": "垃圾桶中还有项目"
+  },
+  "closeWithTrashMessage": {
+    "english": "Delete %@ item(s) before closing?",
+    "chinese": "关闭前删除 %@ 个项目？"
+  },
+  "moveToTrashAndClose": {
+    "english": "Delete and Close",
+    "chinese": "删除并关闭"
+  },
+  "restore": {
+    "english": "Restore",
+    "chinese": "恢复"
+  },
+  "emptyTrashBin": {
+    "english": "Trash is empty.",
+    "chinese": "垃圾桶是空的。"
+  },
+  "unsupportedMediaError": {
+    "english": "No supported images or videos found in this folder.",
+    "chinese": "这个文件夹里没有受支持的图片或视频。"
+  },
+  "unableToLoadImage": {
+    "english": "Unable to load this image",
+    "chinese": "无法加载这张图片"
+  },
+  "renameFileTitle": {
+    "english": "Rename File",
+    "chinese": "重命名文件"
+  },
+  "rename": {
+    "english": "Rename",
+    "chinese": "重命名"
+  },
+  "fileNamePlaceholder": {
+    "english": "File name",
+    "chinese": "文件名"
+  },
+  "browsingCompleteMessage": {
+    "english": "This folder has been fully browsed.",
+    "chinese": "本文件夹已经浏览完"
+  },
+  "sortNewestFirst": {
+    "english": "Sort: Newest to Oldest",
+    "chinese": "排序：最新到最旧"
+  },
+  "sortOldestFirst": {
+    "english": "Sort: Oldest to Newest",
+    "chinese": "排序：最旧到最新"
+  },
+  "previewTrashItem": {
+    "english": "Preview Trash Item",
+    "chinese": "预览垃圾桶项目"
+  },
+  "emptyRenameError": {
+    "english": "File name cannot be empty.",
+    "chinese": "文件名不能为空。"
+  },
+  "renameConflictError": {
+    "english": "A file named %@ already exists.",
+    "chinese": "已经存在名为 %@ 的文件。"
+  },
+  "trashMoveFailedError": {
+    "english": "%@ file(s) could not be deleted.",
+    "chinese": "%@ 个文件无法删除。"
+  },
+  "noFolderSelected": {
+    "english": "No folder selected",
+    "chinese": "未选择文件夹"
+  },
+  "markedForTrash": {
+    "english": "Added to Trash",
+    "chinese": "已加入垃圾桶"
+  },
+  "noImportNoCache": {
+    "english": "No import • No image cache",
+    "chinese": "不导入 • 不缓存"
+  },
+  "appTitle": {
+    "english": "WASD Photo",
+    "chinese": "WASD Photo"
+  },
+  "shortcuts": {
+    "english": "Shortcuts",
+    "chinese": "快捷键"
+  },
+  "gettingStartedTitle": {
+    "english": "Getting Started",
+    "chinese": "快速上手"
+  },
+  "gettingStartedMessage": {
+    "english": "Drop a Finder folder, photos, or videos to start organizing. WASD Photo keeps your media in place.",
+    "chinese": "拖入 Finder 文件夹、图片或视频即可开始整理。WASD Photo 会让媒体保留在原位置。"
+  },
+  "gotIt": {
+    "english": "Got It",
+    "chinese": "明白了"
+  },
+
+  "dragFolderTitle": {
+    "english": "Drop a folder, photos, or videos here",
+    "chinese": "拖拽文件夹、图片或视频到这里"
+  },
+  "dragFolderSubtitle": {
+    "english": "Or",
+    "chinese": "或"
+  },
+  "privacyPromiseBody": {
+    "english": "No library, no import, no storage space used.",
+    "chinese": "无图库、不导入、不占用存储空间。"
+  },
+  "actionOpenFolder": {
+    "english": "Open Folder",
+    "chinese": "打开文件夹"
+  },
+  "actionPreviousItem": {
+    "english": "Previous Item",
+    "chinese": "上一个项目"
+  },
+  "actionNextItem": {
+    "english": "Next Item",
+    "chinese": "下一个项目"
+  },
+  "actionMarkForTrash": {
+    "english": "Add to Trash",
+    "chinese": "加入垃圾桶"
+  },
+  "actionUndo": {
+    "english": "Undo",
+    "chinese": "撤销"
+  },
+  "actionReviewDeletes": {
+    "english": "Open Trash",
+    "chinese": "查看垃圾桶"
+  },
+  "actionOpenNewWindow": {
+    "english": "Open New Organizer Window",
+    "chinese": "打开新的整理窗口"
+  },
+  "keyButton": {
+    "english": "Button",
+    "chinese": "按钮"
+  },
+  "keyDropFolder": {
+    "english": "Drop Folder",
+    "chinese": "拖入文件夹"
+  },
+  "settingsTitle": {
+    "english": "Settings",
+    "chinese": "设置"
+  },
+  "languageTitle": {
+    "english": "Language",
+    "chinese": "语言"
+  },
+  "appearanceTitle": {
+    "english": "Appearance",
+    "chinese": "外观"
+  },
+  "systemAppearance": {
+    "english": "System",
+    "chinese": "跟随系统"
+  },
+  "lightAppearance": {
+    "english": "Light",
+    "chinese": "浅色"
+  },
+  "darkAppearance": {
+    "english": "Dark",
+    "chinese": "深色"
+  },
+  "generalSettings": {
+    "english": "General",
+    "chinese": "通用"
+  },
+  "contentSettings": {
+    "english": "Content",
+    "chinese": "内容"
+  },
+  "reloadText": {
+    "english": "Reload Text",
+    "chinese": "重新加载文案"
+  },
+  "settingsFooter": {
+    "english": "These preferences are stored locally on this Mac.",
+    "chinese": "这些偏好设置只保存在这台 Mac 上。"
+  },
+  "deleteConfirmationMessage": {
+    "english": "Delete %@ item(s)?",
+    "chinese": "删除 %@ 个项目？"
+  },
+  "markedCount": {
+    "english": "%@ in Trash",
+    "chinese": "%@ 个在垃圾桶"
+  }
+}

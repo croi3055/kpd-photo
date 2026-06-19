@@ -1,0 +1,22 @@
+{
+  "previousItem": {
+    "keys": ["leftArrow"],
+    "display": ["←"]
+  },
+  "nextItem": {
+    "keys": ["rightArrow"],
+    "display": ["→"]
+  },
+  "moveToTrash": {
+    "keys": ["upArrow", "w"],
+    "display": ["↑", "W"]
+  },
+  "openTrashBin": {
+    "keys": ["delete"],
+    "display": ["Delete"]
+  },
+  "undo": {
+    "keys": ["z"],
+    "display": ["Z"]
+  }
+}
