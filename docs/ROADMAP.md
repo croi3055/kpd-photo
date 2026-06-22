@@ -1,6 +1,6 @@
-# WASD Photo Roadmap
+# untitled-photo-organizer Roadmap
 
-WASD Photo is a lightweight, Finder-native macOS photo triage tool inspired by the fast browsing and sorting flow of Slidebox.
+untitled-photo-organizer is a lightweight, Finder-native macOS photo triage tool inspired by the fast browsing and sorting flow of Slidebox.
 
 The product direction is deliberately different from Lightroom or Apple Photos: no library import, no copied originals, and no default persistent image cache.
 

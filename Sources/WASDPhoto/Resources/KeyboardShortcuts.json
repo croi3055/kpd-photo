@@ -9,14 +9,18 @@
   },
   "moveToTrash": {
     "keys": ["upArrow", "w"],
-    "display": ["↑", "W"]
+    "display": ["↑"]
   },
   "openTrashBin": {
     "keys": ["delete"],
     "display": ["Delete"]
   },
   "undo": {
-    "keys": ["z"],
-    "display": ["Z"]
+    "keys": ["z", "downArrow"],
+    "display": ["Z", "↓"]
+  },
+  "closeWindow": {
+    "keys": ["escape"],
+    "display": ["Esc"]
   }
 }

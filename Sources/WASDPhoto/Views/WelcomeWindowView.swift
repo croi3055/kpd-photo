@@ -1,27 +1,48 @@
 import AppKit
 import SwiftUI
+import WASDPhotoCore
 
 struct WelcomeWindowView: View {
     @Bindable var preferences: AppPreferences
+    @Bindable var windowCoordinator: AppWindowCoordinator
     @Environment(\.openWindow) private var openWindow
     @State private var isShowingOnboarding = false
-    @State private var window: NSWindow?
 
     var body: some View {
-        EmptyStateView(
-            strings: preferences.strings,
-            openFolder: openFolder,
-            openDroppedItems: openItemsInNewWindow
-        )
-        .frame(minWidth: 560, minHeight: 480)
+        ZStack(alignment: .top) {
+            EmptyStateView(
+                strings: preferences.strings,
+                openFolder: openFolder,
+                openDroppedItems: openItemsInNewWindow
+            )
+
+            if let message = windowCoordinator.noticeMessage {
+                NoticeBanner(message: message)
+                    .padding(.top, 28)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
+        .frame(width: 380, height: 380)
         .preferredColorScheme(preferences.colorScheme)
         .background {
             WindowAccessor { window in
-                self.window = window
-                window?.identifier = .wasdWelcomeWindow
+                windowCoordinator.registerWelcomeWindow(window)
             }
             .frame(width: 0, height: 0)
         }
+        .background {
+            MenuLocalizer(strings: preferences.strings)
+                .frame(width: 0, height: 0)
+        }
+        .background(
+            WindowCloseHandler(
+                shouldClose: { true },
+                requestCloseConfirmation: { _ in },
+                willClose: {
+                    windowCoordinator.welcomeWindow = nil
+                }
+            )
+        )
         .onAppear {
             if !preferences.hasSeenOnboarding {
                 isShowingOnboarding = true
@@ -37,7 +58,7 @@ struct WelcomeWindowView: View {
     }
 
     private func openFolder() {
-        guard let url = FolderPicker.chooseFolder(prompt: preferences.strings.openFolder) else {
+        guard let url = FolderPicker.chooseFolder(strings: preferences.strings) else {
             return
         }
 
@@ -49,8 +70,7 @@ struct WelcomeWindowView: View {
             return
         }
 
-        openWindow(id: "organizer", value: OrganizerInput(url: url))
-        closeWelcomeWindow()
+        openItemsInNewWindow([url])
     }
 
     private func openItemsInNewWindow(_ urls: [URL]) {
@@ -59,13 +79,18 @@ struct WelcomeWindowView: View {
             return
         }
 
-        openWindow(id: "organizer", value: OrganizerInput(urls: usableURLs))
-        closeWelcomeWindow()
-    }
-
-    private func closeWelcomeWindow() {
-        DispatchQueue.main.async {
-            window?.close()
+        let input = OrganizerInput(urls: usableURLs)
+        guard !windowCoordinator.isAlreadyOpen(input) else {
+            windowCoordinator.showNotice(preferences.strings.folderAlreadyOpenMessage)
+            return
         }
+
+        guard FolderScanner.containsSupportedMedia(urls: input.urls) else {
+            windowCoordinator.showNotice(preferences.strings.unsupportedMediaError)
+            return
+        }
+
+        openWindow(id: "organizer", value: input)
+        windowCoordinator.closeWelcomeWindow()
     }
 }

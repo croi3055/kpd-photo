@@ -12,6 +12,7 @@ struct TrashBinView: View {
     @State private var focusedIndex = 0
     @State private var selectionAnchorIndex = 0
     @State private var rangeSelectionBase: Set<URL>?
+    @State private var rangeSelectionMode: RangeSelectionMode?
     @State private var previewIndex: Int?
 
     private let columnCount = 4
@@ -23,6 +24,18 @@ struct TrashBinView: View {
                 ContentUnavailableView(strings.emptyTrashBin, systemImage: "trash")
                     .frame(minHeight: 260)
             } else {
+                HStack {
+                    Spacer()
+
+                    Text(trashSummary)
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+
+                    Spacer()
+                }
+                .padding(.horizontal)
+                .padding(.top)
+
                 ScrollView {
                     LazyVGrid(columns: columns, spacing: 14) {
                         ForEach(Array(session.trashItems.enumerated()), id: \.element.id) { index, item in
@@ -52,24 +65,43 @@ struct TrashBinView: View {
 
                 Spacer()
 
-                Button(strings.selectAll) {
-                    selectedURLs = Set(session.trashItems.map(\.url))
-                    rangeSelectionBase = nil
+                if !session.trashItems.isEmpty {
+                    Button(selectAllButtonTitle) {
+                        toggleAllSelection()
+                    }
                 }
-                .disabled(session.trashItems.isEmpty)
 
-                Button(strings.restoreSelected) {
-                    session.restoreFromTrash(urls: selectedURLs)
-                    selectedURLs = []
-                    rangeSelectionBase = nil
+                if selectedURLs.isEmpty {
+                    Button(strings.restoreAll) {
+                        restoreAllItems()
+                    }
+                    .disabled(session.trashItems.isEmpty)
+                } else {
+                    Button {
+                        restoreSelectedItems()
+                        clearSelectionState()
+                    } label: {
+                        ButtonTitleWithKeyCaps(title: strings.restoreSelected, keys: ["R"])
+                    }
                 }
-                .disabled(selectedURLs.isEmpty)
 
-                Button(deleteButtonTitle, role: .destructive) {
-                    let urlsToDelete = selectedURLs.isEmpty ? nil : selectedURLs
-                    session.confirmTrashBin(urls: urlsToDelete)
-                    selectedURLs = []
-                    rangeSelectionBase = nil
+                if !selectedURLs.isEmpty {
+                    Button(role: .destructive) {
+                        session.confirmTrashBin(urls: selectedURLs)
+                        clearSelectionState()
+
+                        if session.trashItems.isEmpty {
+                            confirmAndClose?()
+                            dismiss()
+                        }
+                    } label: {
+                        ButtonTitleWithKeyCaps(title: strings.moveSelectedToTrash, keys: ["D"])
+                    }
+                }
+
+                Button(strings.emptyTrash, role: .destructive) {
+                    session.confirmTrashBin()
+                    clearSelectionState()
 
                     if session.trashItems.isEmpty {
                         confirmAndClose?()
@@ -77,6 +109,7 @@ struct TrashBinView: View {
                     }
                 }
                 .disabled(session.trashItems.isEmpty)
+                .help("⌘D")
             }
             .padding()
         }
@@ -132,8 +165,18 @@ struct TrashBinView: View {
         )
     }
 
-    private var deleteButtonTitle: String {
-        selectedURLs.isEmpty ? strings.emptyTrash : strings.moveSelectedToTrash
+    private var isAllSelected: Bool {
+        !session.trashItems.isEmpty && selectedURLs.count == session.trashItems.count
+    }
+
+    private var selectAllButtonTitle: String {
+        isAllSelected ? strings.deselectAll : strings.selectAll
+    }
+
+    private var trashSummary: String {
+        let photoCount = session.trashItems.filter { $0.kind == .image }.count
+        let videoCount = session.trashItems.filter { $0.kind == .video }.count
+        return strings.trashSummary(photoCount: photoCount, videoCount: videoCount)
     }
 
     private func toggleSelection(_ url: URL) {
@@ -143,6 +186,32 @@ struct TrashBinView: View {
             selectedURLs.insert(url)
         }
         rangeSelectionBase = nil
+        rangeSelectionMode = nil
+    }
+
+    private func toggleAllSelection() {
+        if isAllSelected {
+            selectedURLs = []
+        } else {
+            selectedURLs = Set(session.trashItems.map(\.url))
+        }
+        rangeSelectionBase = nil
+        rangeSelectionMode = nil
+    }
+
+    private func restoreSelectedItems() {
+        session.restoreFromTrash(urls: selectedURLs)
+    }
+
+    private func restoreAllItems() {
+        session.restoreFromTrash(urls: Set(session.trashItems.map(\.url)))
+        clearSelectionState()
+    }
+
+    private func clearSelectionState() {
+        selectedURLs = []
+        rangeSelectionBase = nil
+        rangeSelectionMode = nil
     }
 
     private func handleKeyboardEvent(_ event: TrashBinKeyboardEvent) {
@@ -160,6 +229,31 @@ struct TrashBinView: View {
             toggleSelection(item.url)
         case .preview:
             previewIndex = focusedIndex
+        case .toggleAll:
+            toggleAllSelection()
+        case .restoreSelected:
+            guard !selectedURLs.isEmpty else {
+                return
+            }
+            restoreSelectedItems()
+            clearSelectionState()
+        case .deleteSelected:
+            guard !selectedURLs.isEmpty else {
+                return
+            }
+            session.confirmTrashBin(urls: selectedURLs)
+            clearSelectionState()
+            if session.trashItems.isEmpty {
+                confirmAndClose?()
+                dismiss()
+            }
+        case .deleteAll:
+            session.confirmTrashBin()
+            clearSelectionState()
+            if session.trashItems.isEmpty {
+                confirmAndClose?()
+                dismiss()
+            }
         }
     }
 
@@ -184,10 +278,13 @@ struct TrashBinView: View {
             if rangeSelectionBase == nil {
                 selectionAnchorIndex = previousIndex
                 rangeSelectionBase = selectedURLs
+                let anchorURL = session.trashItems[previousIndex].url
+                rangeSelectionMode = selectedURLs.contains(anchorURL) ? .remove : .insert
             }
             applyRangeSelection(from: selectionAnchorIndex, to: focusedIndex)
         } else {
             rangeSelectionBase = nil
+            rangeSelectionMode = nil
             selectionAnchorIndex = focusedIndex
         }
     }
@@ -196,14 +293,14 @@ struct TrashBinView: View {
         let lower = min(start, end)
         let upper = max(start, end)
         let originalSelection = rangeSelectionBase ?? selectedURLs
-        let activeRangeURLs: Set<URL>
-        if start == end {
-            activeRangeURLs = []
-        } else {
-            activeRangeURLs = Set(session.trashItems[lower...upper].map(\.url))
-        }
+        let activeRangeURLs = Set(session.trashItems[lower...upper].map(\.url))
 
-        selectedURLs = originalSelection.union(activeRangeURLs)
+        switch rangeSelectionMode ?? .insert {
+        case .insert:
+            selectedURLs = originalSelection.union(activeRangeURLs)
+        case .remove:
+            selectedURLs = originalSelection.subtracting(activeRangeURLs)
+        }
     }
 
     private func clampFocusedIndex() {
@@ -211,6 +308,7 @@ struct TrashBinView: View {
             focusedIndex = 0
             selectionAnchorIndex = 0
             rangeSelectionBase = nil
+            rangeSelectionMode = nil
             previewIndex = nil
             return
         }
@@ -274,6 +372,32 @@ private struct TrashThumbnailCell: View {
         .buttonStyle(.plain)
         .frame(width: 112, height: 136, alignment: .top)
         .help(strings.trashBin)
+    }
+}
+
+private struct ButtonTitleWithKeyCaps: View {
+    let title: String
+    let keys: [String]
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Text(title)
+
+            HStack(spacing: 3) {
+                ForEach(keys, id: \.self) { key in
+                    Text(key)
+                        .font(.system(.caption, design: .rounded).weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 1)
+                        .background(.quaternary, in: RoundedRectangle(cornerRadius: 5))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 5)
+                                .stroke(.separator.opacity(0.35), lineWidth: 1)
+                        }
+                }
+            }
+        }
     }
 }
 
@@ -385,6 +509,15 @@ private enum TrashBinKeyboardEvent {
     case move(TrashBinMoveDirection, isExtendingSelection: Bool)
     case toggleSelection
     case preview
+    case toggleAll
+    case restoreSelected
+    case deleteSelected
+    case deleteAll
+}
+
+private enum RangeSelectionMode {
+    case insert
+    case remove
 }
 
 private enum TrashBinMoveDirection {
@@ -464,8 +597,17 @@ private struct TrashBinKeyboardHandler: NSViewRepresentable {
             }
 
             let isExtendingSelection = event.modifierFlags.contains(.shift)
+            let isCommand = event.modifierFlags.contains(.command)
             let keyboardEvent: TrashBinKeyboardEvent?
-            switch event.keyCode {
+
+            let key = event.charactersIgnoringModifiers?.lowercased()
+
+            if isCommand, key == "a" {
+                keyboardEvent = .toggleAll
+            } else if isCommand, key == "d" {
+                keyboardEvent = .deleteAll
+            } else {
+                switch event.keyCode {
             case 123:
                 keyboardEvent = .move(.left, isExtendingSelection: isExtendingSelection)
             case 124:
@@ -479,7 +621,14 @@ private struct TrashBinKeyboardHandler: NSViewRepresentable {
             case 49:
                 keyboardEvent = .preview
             default:
-                keyboardEvent = nil
+                    if key == "r" {
+                        keyboardEvent = .restoreSelected
+                    } else if key == "d" {
+                        keyboardEvent = .deleteSelected
+                    } else {
+                        keyboardEvent = nil
+                    }
+                }
             }
 
             guard let keyboardEvent else {

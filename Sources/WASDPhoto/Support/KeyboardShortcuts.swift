@@ -7,6 +7,7 @@ enum KeyEvent: String {
     case moveToTrash
     case openTrashBin
     case undo
+    case closeWindow
 }
 
 struct KeyboardShortcutDisplay {
@@ -64,9 +65,10 @@ final class KeyboardShortcuts {
     private static let fallbackBindings: [KeyEvent: ShortcutBinding] = [
         .previousItem: ShortcutBinding(keys: ["leftArrow"], display: ["←"]),
         .nextItem: ShortcutBinding(keys: ["rightArrow"], display: ["→"]),
-        .moveToTrash: ShortcutBinding(keys: ["upArrow", "w"], display: ["↑", "W"]),
+        .moveToTrash: ShortcutBinding(keys: ["upArrow", "w"], display: ["↑"]),
         .openTrashBin: ShortcutBinding(keys: ["delete"], display: ["Delete"]),
-        .undo: ShortcutBinding(keys: ["z"], display: ["Z"])
+        .undo: ShortcutBinding(keys: ["z", "downArrow"], display: ["Z", "↓"]),
+        .closeWindow: ShortcutBinding(keys: ["escape"], display: ["Esc"])
     ]
 }
 
@@ -79,6 +81,12 @@ private struct ShortcutKey {
     let identifier: String
 
     init(nsEvent: NSEvent) {
+        let blockedModifiers: NSEvent.ModifierFlags = [.command, .control, .option]
+        if !nsEvent.modifierFlags.intersection(blockedModifiers).isEmpty {
+            identifier = ""
+            return
+        }
+
         switch nsEvent.keyCode {
         case 123:
             identifier = "leftArrow"
@@ -92,6 +100,8 @@ private struct ShortcutKey {
             identifier = "delete"
         case 49:
             identifier = "space"
+        case 53:
+            identifier = "escape"
         default:
             identifier = nsEvent.charactersIgnoringModifiers?.lowercased() ?? ""
         }

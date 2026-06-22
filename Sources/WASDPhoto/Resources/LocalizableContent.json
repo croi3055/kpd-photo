@@ -7,17 +7,77 @@
     "english": "Open Folder...",
     "chinese": "打开文件夹..."
   },
+  "openFolderPanelTitle": {
+    "english": "Open Folder",
+    "chinese": "打开文件夹"
+  },
+  "openFolderPanelMessage": {
+    "english": "Choose a folder that contains photos or videos.",
+    "chinese": "选择包含图片或视频的文件夹。"
+  },
   "aboutMenu": {
-    "english": "About WASD Photo",
-    "chinese": "关于 WASD Photo"
+    "english": "About untitled-photo-organizer",
+    "chinese": "关于 untitled-photo-organizer"
   },
   "settingsMenu": {
     "english": "Settings...",
     "chinese": "设置..."
   },
   "quitMenu": {
-    "english": "Quit WASD Photo",
-    "chinese": "退出 WASD Photo"
+    "english": "Quit untitled-photo-organizer",
+    "chinese": "退出 untitled-photo-organizer"
+  },
+  "hideMenu": {
+    "english": "Hide untitled-photo-organizer",
+    "chinese": "隐藏 untitled-photo-organizer"
+  },
+  "hideOthersMenu": {
+    "english": "Hide Others",
+    "chinese": "隐藏其他"
+  },
+  "showAllMenu": {
+    "english": "Show All",
+    "chinese": "全部显示"
+  },
+  "helpMenu": {
+    "english": "untitled-photo-organizer Help",
+    "chinese": "untitled-photo-organizer 帮助"
+  },
+  "fileMenu": {
+    "english": "File",
+    "chinese": "文件"
+  },
+  "editMenu": {
+    "english": "Edit",
+    "chinese": "编辑"
+  },
+  "viewMenu": {
+    "english": "View",
+    "chinese": "显示"
+  },
+  "windowMenu": {
+    "english": "Window",
+    "chinese": "窗口"
+  },
+  "helpTopMenu": {
+    "english": "Help",
+    "chinese": "帮助"
+  },
+  "cutMenu": {
+    "english": "Cut",
+    "chinese": "剪切"
+  },
+  "copyMenu": {
+    "english": "Copy",
+    "chinese": "复制"
+  },
+  "pasteMenu": {
+    "english": "Paste",
+    "chinese": "粘贴"
+  },
+  "selectAllMenu": {
+    "english": "Select All",
+    "chinese": "全选"
   },
   "undo": {
     "english": "Undo",
@@ -47,9 +107,25 @@
     "english": "Trash",
     "chinese": "垃圾桶"
   },
+  "openTrashBin": {
+    "english": "Open Trash",
+    "chinese": "打开垃圾桶"
+  },
+  "showInFinder": {
+    "english": "Show in Finder",
+    "chinese": "在 Finder 中显示"
+  },
+  "openInPreview": {
+    "english": "Open in Preview",
+    "chinese": "在预览中打开"
+  },
+  "shareViaAirDrop": {
+    "english": "AirDrop",
+    "chinese": "隔空投送"
+  },
   "emptyTrash": {
     "english": "Delete All",
-    "chinese": "全部删除"
+    "chinese": "删除全部"
   },
   "moveSelectedToTrash": {
     "english": "Delete Selected",
@@ -57,11 +133,19 @@
   },
   "restoreSelected": {
     "english": "Restore Selected",
-    "chinese": "恢复所选项目"
+    "chinese": "恢复所选"
+  },
+  "restoreAll": {
+    "english": "Restore All",
+    "chinese": "恢复全部"
   },
   "selectAll": {
     "english": "Select All",
     "chinese": "全选"
+  },
+  "deselectAll": {
+    "english": "Deselect All",
+    "chinese": "取消全选"
   },
   "emptyTrashTitle": {
     "english": "Delete Items?",
@@ -82,6 +166,10 @@
   "moveToTrashAndClose": {
     "english": "Delete and Close",
     "chinese": "删除并关闭"
+  },
+  "discardChangesAndClose": {
+    "english": "Discard Changes",
+    "chinese": "放弃更改"
   },
   "restore": {
     "english": "Restore",
@@ -152,8 +240,8 @@
     "chinese": "不导入 • 不缓存"
   },
   "appTitle": {
-    "english": "WASD Photo",
-    "chinese": "WASD Photo"
+    "english": "untitled-photo-organizer",
+    "chinese": "untitled-photo-organizer"
   },
   "shortcuts": {
     "english": "Shortcuts",
@@ -164,8 +252,8 @@
     "chinese": "快速上手"
   },
   "gettingStartedMessage": {
-    "english": "Drop a Finder folder, photos, or videos to start organizing. WASD Photo keeps your media in place.",
-    "chinese": "拖入 Finder 文件夹、图片或视频即可开始整理。WASD Photo 会让媒体保留在原位置。"
+    "english": "Drop a Finder folder, photos, or videos to start organizing. untitled-photo-organizer keeps your media in place.",
+    "chinese": "拖入 Finder 文件夹、图片或视频即可开始整理。untitled-photo-organizer 会让媒体保留在原位置。"
   },
   "gotIt": {
     "english": "Got It",
@@ -259,6 +347,38 @@
   "settingsFooter": {
     "english": "These preferences are stored locally on this Mac.",
     "chinese": "这些偏好设置只保存在这台 Mac 上。"
+  },
+  "folderAlreadyOpenTitle": {
+    "english": "Folder Already Open",
+    "chinese": "文件夹已打开"
+  },
+  "folderAlreadyOpenMessage": {
+    "english": "This folder is already open in another organizer window.",
+    "chinese": "这个文件夹已经在另一个整理窗口中打开。"
+  },
+  "dropToOpenNewWindow": {
+    "english": "Drop to open a new organizer window",
+    "chinese": "松开以打开新的整理窗口"
+  },
+  "trashSummary": {
+    "english": "%@, %@",
+    "chinese": "%@，%@"
+  },
+  "photoUnitSingular": {
+    "english": "photo",
+    "chinese": "张照片"
+  },
+  "photoUnitPlural": {
+    "english": "photos",
+    "chinese": "张照片"
+  },
+  "videoUnitSingular": {
+    "english": "video",
+    "chinese": "个视频"
+  },
+  "videoUnitPlural": {
+    "english": "videos",
+    "chinese": "个视频"
   },
   "deleteConfirmationMessage": {
     "english": "Delete %@ item(s)?",

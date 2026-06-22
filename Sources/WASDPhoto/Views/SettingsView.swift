@@ -47,6 +47,10 @@ struct SettingsView: View {
         .padding()
         .frame(width: 440)
         .navigationTitle(strings.settingsTitle)
+        .background {
+            MenuLocalizer(strings: strings)
+                .frame(width: 0, height: 0)
+        }
     }
 }
 

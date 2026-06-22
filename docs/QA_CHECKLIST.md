@@ -1,4 +1,4 @@
-# WASD Photo QA Checklist
+# untitled-photo-organizer QA Checklist
 
 This checklist is for the V0 stabilization pass. It focuses on existing behavior only: browsing, trash, sorting, renaming, text, and window lifecycle.
 

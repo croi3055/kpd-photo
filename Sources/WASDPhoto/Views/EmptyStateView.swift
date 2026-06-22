@@ -5,16 +5,18 @@ struct EmptyStateView: View {
     let openFolder: () -> Void
     let openDroppedItems: ([URL]) -> Void
     @State private var isDropTargeted = false
+    private let outerPadding: CGFloat = 40
+    private let dropZoneSize = CGSize(width: 300, height: 300)
 
     var body: some View {
-        VStack(spacing: 22) {
+        VStack {
             VStack(spacing: 14) {
                 Image(systemName: "folder.badge.plus")
-                    .font(.system(size: 58))
+                    .font(.system(size: 44))
                     .foregroundStyle(isDropTargeted ? .blue : .secondary)
 
                 Text(strings.dragFolderTitle)
-                    .font(.title2)
+                    .font(.title3)
                     .fontWeight(.semibold)
 
                 Text(strings.dragFolderSubtitle)
@@ -27,8 +29,8 @@ struct EmptyStateView: View {
                 }
                 .buttonStyle(.borderedProminent)
             }
-            .padding(28)
-            .frame(maxWidth: 480)
+            .padding(22)
+            .frame(width: dropZoneSize.width, height: dropZoneSize.height)
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 22))
             .overlay {
                 RoundedRectangle(cornerRadius: 22)
@@ -39,7 +41,8 @@ struct EmptyStateView: View {
             }
             .onDrop(of: [.fileURL], isTargeted: $isDropTargeted, perform: handleDrop(providers:))
         }
-        .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(outerPadding)
     }
 
     private func handleDrop(providers: [NSItemProvider]) -> Bool {

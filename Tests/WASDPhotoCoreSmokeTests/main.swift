@@ -39,6 +39,11 @@ try FileManager.default.createDirectory(
 let photos = try FolderScanner().scan(folderURL: folderURL)
 expect(photos.map(\.fileName) == ["c.mov", "b.PNG", "a.jpg"], "FolderScanner should return supported media sorted newest to oldest by default.")
 expect(photos.map(\.kind) == [.video, .image, .image], "FolderScanner should classify images and videos.")
+expect(FolderScanner.containsSupportedMedia(urls: [folderURL]), "FolderScanner should report folders with supported media as openable.")
+
+let emptyFolderURL = folderURL.appendingPathComponent("empty", isDirectory: true)
+try FileManager.default.createDirectory(at: emptyFolderURL, withIntermediateDirectories: false)
+expect(!FolderScanner.containsSupportedMedia(urls: [emptyFolderURL]), "FolderScanner should report empty folders as not openable.")
 
 let oldestFirstPhotos = try FolderScanner().scan(folderURL: folderURL, sortOrder: .oldestFirst)
 expect(oldestFirstPhotos.map(\.fileName) == ["a.jpg", "b.PNG", "c.mov"], "FolderScanner should support oldest to newest sorting.")
@@ -80,6 +85,16 @@ restoreSession.markCurrentPhotoForDeletion()
 expect(restoreSession.trashItems.map(\.fileName) == ["renamed-a.jpg"], "Restore test should start with the oldest item in trash.")
 restoreSession.restoreFromTrash(restoreSession.trashItems[0])
 expect(restoreSession.photos.map(\.fileName) == ["renamed-a.jpg", "b.PNG", "c.mov"], "Restored items should keep the active sort order.")
+
+let discardSession = PhotoSession()
+discardSession.open(folderURL: folderURL, sortOrder: .newestFirst)
+discardSession.markCurrentPhotoForDeletion()
+discardSession.markCurrentPhotoForDeletion()
+discardSession.discardPendingTrashChanges()
+expect(discardSession.trashItems.isEmpty, "Discarding pending changes should empty the app trash.")
+expect(discardSession.photos.map(\.fileName) == ["c.mov", "b.PNG", "renamed-a.jpg"], "Discarding pending changes should restore trash items in active sort order.")
+discardSession.undoLastAction()
+expect(discardSession.trashItems.isEmpty, "Discarding pending changes should clear undo history for pending trash actions.")
 
 let fakeTrashService = TrashService { urls in
     TrashResult(trashed: urls, failed: [])

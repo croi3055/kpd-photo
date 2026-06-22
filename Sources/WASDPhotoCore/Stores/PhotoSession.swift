@@ -155,6 +155,19 @@ public final class PhotoSession {
         }
     }
 
+    public func discardPendingTrashChanges() {
+        let pendingItems = trashItems
+        guard !pendingItems.isEmpty else {
+            return
+        }
+
+        trashItems.removeAll()
+        photos.append(contentsOf: pendingItems)
+        photos = sorted(items: photos)
+        actionHistory.removeAll()
+        currentIndex = min(max(currentIndex, 0), max(photos.count - 1, 0))
+    }
+
     public func confirmTrashBin(urls targetURLs: Set<URL>? = nil) {
         let itemsToTrash = trashItems.filter { item in
             targetURLs?.contains(item.url) ?? true

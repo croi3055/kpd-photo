@@ -29,6 +29,14 @@ public struct FolderScanner {
         self.fileManager = fileManager
     }
 
+    public static func containsSupportedMedia(urls: [URL]) -> Bool {
+        do {
+            return try FolderScanner().scan(urls: urls).isEmpty == false
+        } catch {
+            return false
+        }
+    }
+
     public func scan(folderURL: URL, sortOrder: MediaSortOrder = .newestFirst) throws -> [PhotoItem] {
         let resourceKeys: Set<URLResourceKey> = [.isRegularFileKey, .isHiddenKey]
         let urls = try fileManager.contentsOfDirectory(
