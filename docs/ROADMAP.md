@@ -4,6 +4,11 @@ untitled-photo-organizer is a lightweight, Finder-native macOS photo triage tool
 
 The product direction is deliberately different from Lightroom or Apple Photos: no library import, no copied originals, and no default persistent image cache.
 
+## Current Milestones
+
+- `v0.1.0` Core Triage: complete. Covers Finder-native opening, direct folder/file browsing, photo and video support, delete queue, app trash review, restore, final delete to macOS Trash, inline rename, sorting, localization, keyboard shortcuts, right-click actions, and the compact welcome flow.
+- `V1` Grouping: next. Covers Slidebox-style group creation, number-key assignment, reviewable pending moves, and confirmed movement into group folders or Finder tags.
+
 ## Product Principles
 
 - Read photos directly from Finder folders.
@@ -124,9 +129,9 @@ Safety requirements:
 - Failed operations should be reported clearly.
 - File-not-found, permission, and conflict errors should not stop unrelated operations unless necessary.
 
-## Step 6: Add Slidebox-Style Grouping
+## Step 6 / V1: Add Slidebox-Style Grouping
 
-After V0 feels good, add grouping.
+After `v0.1.0` core triage feels stable, add grouping.
 
 Grouping features:
 

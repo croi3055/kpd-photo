@@ -412,10 +412,10 @@ Longer-term success:
 
 ## 15. Milestones / 里程碑
 
-- `v0.1`: Folder browsing and safe delete queue.
-- `v0.1`：文件夹浏览和安全删除队列。
-- `v0.2`: Group assignment and batch move.
-- `v0.2`：分组分配和批量移动。
+- `v0.1.0`: Core triage complete: folder/file browsing, photo/video support, delete queue, trash review, restore, final delete, inline rename, sorting, localization, keyboard shortcuts, right-click actions, and compact welcome flow.
+- `v0.1.0`：核心整理流程完成：文件夹/文件浏览、图片/视频支持、删除队列、垃圾桶复查、恢复、最终删除、内联重命名、排序、多语言、快捷键、右键菜单和紧凑初始界面。
+- `V1`: Grouping: group assignment and batch move.
+- `V1`：分组：分组分配和批量移动。
 - `v0.3`: Rename preview and apply.
 - `v0.3`：重命名预览和执行。
 - `v0.4`: Finder tags.

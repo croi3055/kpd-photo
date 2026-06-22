@@ -4,6 +4,12 @@
 
 ### Added
 
+- Planned V1 Grouping as the next product phase after core triage.
+
+## v0.1.0 - 2026-06-22
+
+### Added
+
 - Added the initial product roadmap for a lightweight, Finder-native macOS photo triage app.
 - Added the initial PRD covering goals, scope, UX requirements, file safety, performance, privacy, and milestones.
 - Added the development process for devlogs, changelog entries, and architecture decision records.
