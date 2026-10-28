@@ -1,10 +1,10 @@
-# untitled-photo-organizer PRD / 产品需求文档
+# KPD PRD / 产品需求文档
 
 ## 1. Overview / 概览
 
-untitled-photo-organizer is a lightweight, native macOS photo and video browsing and triage app for media stored in normal Finder folders.
+KPD is a lightweight, native macOS photo and video browsing and triage app for media stored in normal Finder folders.
 
-untitled-photo-organizer 是一个轻量、原生的 macOS 照片与视频浏览整理工具，面向存放在普通 Finder 文件夹里的媒体文件。
+KPD 是一个轻量、原生的 macOS 照片与视频浏览整理工具，面向存放在普通 Finder 文件夹里的媒体文件。
 
 It is designed for users who want the speed of a phone-style photo cleanup flow, but do not want a Lightroom-style library, import process, copied originals, or persistent preview cache.
 

@@ -1,5 +1,5 @@
 import Foundation
-import WASDPhotoCore
+import KPDCore
 
 extension URL {
     var isExistingDirectory: Bool {

@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 import UniformTypeIdentifiers
-import WASDPhotoCore
+import KPDCore
 
 struct ContentView: View {
     let input: OrganizerInput
@@ -10,6 +10,7 @@ struct ContentView: View {
     @Environment(\.openWindow) private var openWindow
     @State private var session = PhotoSession()
     @State private var isShowingTrashBin = false
+    @State private var isShowingKeepBox = false
     @State private var isShowingCloseConfirmation = false
     @State private var isRenamingInline = false
     @State private var renameBaseName = ""
@@ -23,21 +24,21 @@ struct ContentView: View {
     @State private var isShowingBrowsingComplete = false
     @State private var isDropTargeted = false
     @State private var didUnregisterOrganizer = false
+    @State private var isShowingTimeInfo = false
 
     var body: some View {
         let strings = preferences.strings
 
         ZStack {
-            VStack(spacing: 0) {
-                ZStack {
-                    viewer
-                        .blur(radius: isDropTargeted ? 8 : 0)
+            ZStack {
+                viewer
+                    .blur(radius: isDropTargeted ? 8 : 0)
 
-                    if isDropTargeted {
-                        DropTargetOverlay(message: strings.dropToOpenNewWindow)
-                    }
+                cornerActionButtons
+
+                if isDropTargeted {
+                    DropTargetOverlay(message: strings.dropToOpenNewWindow)
                 }
-                statusBar
             }
 
             if let message = windowCoordinator.noticeMessage {
@@ -88,7 +89,7 @@ struct ContentView: View {
         .background(
             WindowCloseHandler(
                 shouldClose: {
-                    allowsWindowClose || !session.hasPendingTrash
+                    allowsWindowClose || !session.hasPendingChanges
                 },
                 requestCloseConfirmation: { window in
                     windowPendingClose = window
@@ -121,6 +122,9 @@ struct ContentView: View {
         .sheet(isPresented: $isShowingTrashBin) {
             TrashBinView(session: session, strings: strings, confirmAndClose: nil)
         }
+        .sheet(isPresented: $isShowingKeepBox) {
+            KeepBoxView(session: session, strings: strings)
+        }
         .alert(strings.appTitle, isPresented: errorBinding) {
             Button(strings.ok) {
                 session.error = nil
@@ -142,7 +146,9 @@ struct ContentView: View {
         organizerWindow = nil
         isShowingCloseConfirmation = false
         isShowingTrashBin = false
+        isShowingKeepBox = false
         isRenamingInline = false
+        isShowingTimeInfo = false
         isShowingBrowsingComplete = false
         isViewerVisible = true
         session.open(urls: input.urls, sortOrder: preferences.mediaSortOrder)
@@ -160,16 +166,16 @@ struct ContentView: View {
             backing: .buffered,
             defer: false
         )
-        confirmationWindow.title = strings.closeWithTrashTitle
+        confirmationWindow.title = strings.closeWithChangesTitle
         confirmationWindow.isReleasedWhenClosed = false
         confirmationWindow.level = .floating
         confirmationWindow.standardWindowButton(.miniaturizeButton)?.isHidden = true
         confirmationWindow.standardWindowButton(.zoomButton)?.isHidden = true
         confirmationWindow.contentView = NSHostingView(
             rootView: CloseTrashConfirmationView(
-                message: strings.closeWithTrashMessage(count: session.trashCount),
+                message: strings.closeWithChangesMessage(keepCount: session.keptCount, trashCount: session.trashCount),
                 discardTitle: strings.discardChangesAndClose,
-                deleteTitle: strings.moveToTrashAndClose,
+                deleteTitle: strings.applyAndClose,
                 dismiss: {
                     closeConfirmationWindow?.close()
                     closeConfirmationWindow = nil
@@ -177,14 +183,15 @@ struct ContentView: View {
                 discard: {
                     closeConfirmationWindow?.close()
                     closeConfirmationWindow = nil
-                    session.discardPendingTrashChanges()
+                    session.discardPendingChanges()
                     closeOrganizerAfterConfirmation(parentWindow)
                 },
                 delete: {
                     closeConfirmationWindow?.close()
                     closeConfirmationWindow = nil
+                    session.confirmKeepBox()
                     session.confirmTrashBin()
-                    if !session.hasPendingTrash {
+                    if !session.hasPendingChanges {
                         closeOrganizerAfterConfirmation(parentWindow)
                     }
                 }
@@ -220,7 +227,7 @@ struct ContentView: View {
             return
         }
 
-        if session.hasPendingTrash {
+        if session.hasPendingChanges {
             windowPendingClose = organizerWindow
             presentCloseConfirmation(for: organizerWindow, strings: preferences.strings)
         } else {
@@ -256,9 +263,28 @@ struct ContentView: View {
 
             if isViewerVisible {
                 if isShowingBrowsingComplete {
-                    BrowsingCompleteView(message: strings.browsingCompleteMessage)
+                    ZStack {
+                        BrowsingCompleteView(message: strings.browsingCompleteMessage)
+
+                        VStack {
+                            Spacer()
+                            bottomProgressInfo
+                                .padding(.bottom, 52)
+                        }
+                    }
                 } else if let photo = session.currentPhoto {
-                    PhotoViewer(photo: photo, strings: strings)
+                    VStack(spacing: 0) {
+                        topMediaInfo(strings: strings)
+                            .padding(.top, 18)
+                            .padding(.bottom, 12)
+
+                        PhotoViewer(photo: photo, strings: strings)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                        bottomProgressInfo
+                            .padding(.top, 10)
+                            .padding(.bottom, 52)
+                    }
                 } else {
                     EmptyStateView(
                         strings: strings,
@@ -302,15 +328,34 @@ struct ContentView: View {
         }
     }
 
-    private var statusBar: some View {
+    private var cornerActionButtons: some View {
         let strings = preferences.strings
 
-        return HStack(spacing: 12) {
-            Text(session.currentPositionText)
-                .font(.callout.monospacedDigit())
+        return Color.clear
+        .overlay(alignment: .bottomLeading) {
+            if shouldShowOrganizerChrome {
+                KeepStatusButton(count: session.keptCount, label: strings.keepBox) {
+                    isShowingKeepBox = true
+                }
+                .padding(.leading, 18)
+                .padding(.bottom, 14)
+            }
+        }
+        .overlay(alignment: .bottomTrailing) {
+            if shouldShowOrganizerChrome {
+                TrashStatusButton(count: session.trashCount, label: strings.trashBin) {
+                    isShowingTrashBin = true
+                }
+                .padding(.trailing, 18)
+                .padding(.bottom, 14)
+            }
+        }
+        .allowsHitTesting(shouldShowOrganizerChrome)
+    }
 
-            Divider()
-                .frame(height: 16)
+    private func topMediaInfo(strings: AppStrings) -> some View {
+        VStack(spacing: 4) {
+            timeInfoSlot
 
             InlineRenameFileNameView(
                 fileName: session.currentPhoto?.fileName ?? strings.noFolderSelected,
@@ -322,17 +367,48 @@ struct ContentView: View {
                 commitRename: commitRename,
                 cancelRename: cancelRename
             )
+            .frame(width: 460, alignment: .center)
+        }
+        .frame(maxWidth: .infinity)
+        .multilineTextAlignment(.center)
+    }
 
-            Spacer()
-
-            TrashStatusButton(count: session.trashCount, label: strings.trashBin) {
-                isShowingTrashBin = true
+    private var timeInfoSlot: some View {
+        Group {
+            if let photo = session.currentPhoto {
+                Text(Self.mediaDateFormatter.string(from: photo.sortDate))
+                    .font(.callout.monospacedDigit())
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .opacity(isShowingTimeInfo ? 1 : 0)
+            } else {
+                Text(" ")
+                    .font(.callout.monospacedDigit())
+                    .lineLimit(1)
+                    .opacity(0)
             }
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 8)
-        .background(.bar)
+        .frame(height: 20)
     }
+
+    private var bottomProgressInfo: some View {
+        Text(session.currentPositionText)
+            .font(.callout.monospacedDigit())
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(.bar, in: Capsule())
+    }
+
+    private var shouldShowOrganizerChrome: Bool {
+        isViewerVisible && (session.currentPhoto != nil || isShowingBrowsingComplete || session.hasPendingChanges)
+    }
+
+    private static let mediaDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter
+    }()
 
     private var errorBinding: Binding<Bool> {
         Binding(
@@ -472,16 +548,45 @@ struct ContentView: View {
                 isShowingBrowsingComplete = false
                 session.showNextPhoto()
             }
+        case .keepItem:
+            keepCurrentItem()
         case .moveToTrash:
-            isShowingBrowsingComplete = false
-            session.markCurrentPhotoForDeletion()
+            moveCurrentItemToTrash()
         case .openTrashBin:
             isShowingTrashBin = true
+        case .toggleTimeInfo:
+            isShowingTimeInfo.toggle()
         case .undo:
             isShowingBrowsingComplete = false
             session.undoLastAction()
         case .closeWindow:
             requestOrganizerClose()
+        }
+    }
+
+    private func keepCurrentItem() {
+        guard session.currentPhoto != nil else {
+            return
+        }
+
+        let wasAtLastPhoto = session.isAtLastPhoto
+        isShowingBrowsingComplete = false
+        session.keepCurrentPhoto()
+        if session.photos.isEmpty || wasAtLastPhoto {
+            isShowingBrowsingComplete = true
+        }
+    }
+
+    private func moveCurrentItemToTrash() {
+        guard session.currentPhoto != nil else {
+            return
+        }
+
+        let wasAtLastPhoto = session.isAtLastPhoto
+        isShowingBrowsingComplete = false
+        session.markCurrentPhotoForDeletion()
+        if session.photos.isEmpty || wasAtLastPhoto {
+            isShowingBrowsingComplete = true
         }
     }
 }
@@ -505,12 +610,13 @@ private struct InlineRenameFileNameView: View {
                 Text(fileName)
                     .lineLimit(1)
                     .truncationMode(.middle)
+                    .multilineTextAlignment(.center)
                     .onTapGesture(count: 2) {
                         beginRename()
                     }
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, alignment: .center)
         .onChange(of: isRenaming) { _, newValue in
             if newValue {
                 DispatchQueue.main.async {
@@ -529,6 +635,7 @@ private struct InlineRenameFileNameView: View {
         HStack(spacing: 4) {
             TextField(placeholder, text: $baseName)
                 .textFieldStyle(.plain)
+                .multilineTextAlignment(.center)
                 .focused($isFocused)
                 .onSubmit {
                     commitRename()
@@ -549,7 +656,7 @@ private struct InlineRenameFileNameView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .frame(maxWidth: 320, alignment: .leading)
+        .frame(maxWidth: 320, alignment: .center)
         .background {
             RenameOutsideClickHandler(isActive: isRenaming) {
                 commitRename()
@@ -911,6 +1018,37 @@ private struct TrashStatusButton: View {
                         .padding(.horizontal, 5)
                         .padding(.vertical, 2)
                         .background(.red, in: Capsule())
+                        .offset(x: 8, y: -6)
+                }
+            }
+        }
+        .buttonStyle(.plain)
+        .help(label)
+    }
+}
+
+private struct KeepStatusButton: View {
+    let count: Int
+    let label: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            ZStack(alignment: .topTrailing) {
+                Image(systemName: "archivebox")
+                    .font(.system(size: 17, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 18, height: 18)
+                    .padding(6)
+
+                if count > 0 {
+                    Text("\(count)")
+                        .font(.caption2.bold())
+                        .monospacedDigit()
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 2)
+                        .background(.green, in: Capsule())
                         .offset(x: 8, y: -6)
                 }
             }

@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Keep / Pending / Delete QA Checklist</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f4f3ef;
+      --panel: rgba(255, 255, 255, 0.76);
+      --panel-strong: rgba(255, 255, 255, 0.94);
+      --text: #202124;
+      --muted: #70737a;
+      --line: rgba(30, 30, 30, 0.1);
+      --accent: #2777ff;
+      --keep: #2c9c62;
+      --delete: #d94b45;
+      --pending: #8a6fdb;
+      --shadow: 0 18px 55px rgba(0, 0, 0, 0.12);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #171717;
+        --panel: rgba(38, 38, 38, 0.72);
+        --panel-strong: rgba(45, 45, 45, 0.96);
+        --text: #f4f4f4;
+        --muted: #a4a4a8;
+        --line: rgba(255, 255, 255, 0.11);
+        --shadow: 0 18px 55px rgba(0, 0, 0, 0.35);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 18% 8%, rgba(39, 119, 255, 0.13), transparent 28rem),
+        radial-gradient(circle at 80% 10%, rgba(44, 156, 98, 0.14), transparent 30rem),
+        var(--bg);
+    }
+
+    main {
+      width: min(1120px, calc(100vw - 36px));
+      margin: 0 auto;
+      padding: 34px 0 60px;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: end;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 4vw, 46px);
+      letter-spacing: -0.045em;
+      line-height: 1;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .toolbar,
+    .summary,
+    details {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+      border-radius: 22px;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 14px;
+      z-index: 5;
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      margin-bottom: 18px;
+    }
+
+    input[type="search"] {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      color: var(--text);
+      background: var(--panel-strong);
+      font: inherit;
+      padding: 11px 13px;
+      outline: none;
+    }
+
+    input[type="search"]:focus {
+      border-color: color-mix(in srgb, var(--accent), transparent 35%);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent), transparent 86%);
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--text);
+      background: var(--panel-strong);
+      font: 600 13px/1 -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      padding: 11px 14px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    button:hover {
+      border-color: color-mix(in srgb, var(--accent), transparent 55%);
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: minmax(180px, 260px) 1fr;
+      gap: 20px;
+      align-items: center;
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+
+    .score {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .score strong {
+      font-size: 44px;
+      letter-spacing: -0.055em;
+    }
+
+    .score span {
+      color: var(--muted);
+    }
+
+    .progress-track {
+      height: 14px;
+      border-radius: 999px;
+      background: rgba(128, 128, 128, 0.16);
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--pending), var(--accent), var(--keep));
+      transition: width 180ms ease;
+    }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 9px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 11px;
+      color: var(--muted);
+      background: var(--panel);
+      cursor: pointer;
+      user-select: none;
+      font-size: 13px;
+    }
+
+    .chip.active {
+      color: white;
+      border-color: transparent;
+      background: var(--accent);
+    }
+
+    .sections {
+      display: grid;
+      gap: 14px;
+    }
+
+    details {
+      overflow: hidden;
+    }
+
+    details[hidden] {
+      display: none;
+    }
+
+    summary {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 16px 18px;
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .section-icon {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 11px;
+      background: rgba(128, 128, 128, 0.13);
+    }
+
+    .section-title {
+      font-size: 17px;
+      font-weight: 750;
+    }
+
+    .section-count {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .items {
+      display: grid;
+      gap: 1px;
+      padding: 0 10px 12px;
+    }
+
+    label.item {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 11px 10px;
+      border-radius: 13px;
+      cursor: pointer;
+    }
+
+    label.item:hover {
+      background: rgba(128, 128, 128, 0.09);
+    }
+
+    label.item[hidden] {
+      display: none;
+    }
+
+    input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      margin: 0;
+      accent-color: var(--accent);
+    }
+
+    .item-text {
+      line-height: 1.45;
+      font-size: 14px;
+    }
+
+    input[type="checkbox"]:checked + .item-text {
+      color: var(--muted);
+      text-decoration: line-through;
+      text-decoration-thickness: 1px;
+    }
+
+    .empty {
+      display: none;
+      color: var(--muted);
+      text-align: center;
+      padding: 34px;
+      border: 1px dashed var(--line);
+      border-radius: 20px;
+      background: var(--panel);
+    }
+
+    .empty.visible {
+      display: block;
+    }
+
+    @media (max-width: 760px) {
+      header,
+      .toolbar,
+      .summary {
+        grid-template-columns: 1fr;
+      }
+
+      .toolbar {
+        position: static;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>Keep / Pending / Delete QA</h1>
+        <p class="subtitle">交互式检查清单。勾选状态会自动保存在这个浏览器里，适合边跑 app 边打勾。</p>
+      </div>
+      <button id="copyOpenIssues">复制未完成项</button>
+    </header>
+
+    <section class="toolbar">
+      <input id="search" type="search" placeholder="搜索测试项，例如：保留箱、关闭、视频、Z">
+      <button id="expandAll">展开全部</button>
+      <button id="resetAll">重置勾选</button>
+    </section>
+
+    <section class="summary">
+      <div class="score">
+        <strong id="percent">0%</strong>
+        <span id="fraction">0 / 0</span>
+      </div>
+      <div>
+        <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
+        <div class="meta">
+          <span id="lastSaved">尚未保存</span>
+          <span>版本：Keep / Pending / Delete</span>
+        </div>
+      </div>
+    </section>
+
+    <nav id="chips" class="chips"></nav>
+    <section id="sections" class="sections"></section>
+    <div id="empty" class="empty">没有匹配的测试项。</div>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "KPD.qa.keep-pending-delete.v1";
+
+    const sections = [
+      {
+        id: "basic",
+        title: "基础浏览",
+        icon: "↔",
+        items: [
+          "打开一个包含图片/视频的文件夹后，默认进入待定队列",
+          "← 可以浏览上一项",
+          "→ 可以浏览下一项",
+          "左右浏览不会改变 Keep / Pending / Delete 状态",
+          "浏览到最后一项后，显示“本文件夹已经浏览完”",
+          "在完成页按 → 可以回到第一项"
+        ]
+      },
+      {
+        id: "keep",
+        title: "Keep / 保留箱",
+        icon: "✓",
+        items: [
+          "在待定项目上按 ↓ 后，该项目从浏览窗口消失",
+          "按 ↓ 后自动显示下一项待定项目，不跳过项目",
+          "保留箱角标数量 +1",
+          "点击保留箱图标可以打开保留箱",
+          "保留箱内能看到刚刚 Keep 的项目缩略图",
+          "保留箱内点击项目可以选中/取消选中",
+          "保留箱内方向键可以移动焦点",
+          "保留箱内 Shift + 方向键可以多选",
+          "保留箱内空格可以打开预览",
+          "保留箱预览里方向键可以切换项目",
+          "保留箱预览里空格可以关闭预览",
+          "保留箱中选择项目后点击“移回待定”，项目回到待定队列",
+          "保留箱中无选择时点击“全部移回待定”，所有项目回到待定队列",
+          "移回待定后，保留箱角标数量减少",
+          "移回待定后，该项目可以再次在浏览窗口中看到"
+        ]
+      },
+      {
+        id: "delete",
+        title: "Delete / 垃圾桶",
+        icon: "×",
+        items: [
+          "在待定项目上按 ↑ 后，该项目从浏览窗口消失",
+          "在待定项目上按 W 后，该项目从浏览窗口消失",
+          "删除后自动显示下一项待定项目，不跳过项目",
+          "垃圾桶角标数量 +1",
+          "点击垃圾桶图标可以打开垃圾桶",
+          "垃圾桶内能看到刚刚 Delete 的项目缩略图",
+          "垃圾桶内点击项目可以选中/取消选中",
+          "垃圾桶内方向键可以移动焦点",
+          "垃圾桶内 Shift + 方向键可以多选",
+          "垃圾桶内空格可以打开预览",
+          "垃圾桶预览里方向键可以切换项目",
+          "垃圾桶预览里空格可以关闭预览",
+          "垃圾桶中选择项目后点击“恢复所选”，项目回到待定队列",
+          "垃圾桶中无选择时点击“恢复全部”，所有项目回到待定队列",
+          "垃圾桶角标数量减少",
+          "恢复后，该项目可以再次在浏览窗口中看到"
+        ]
+      },
+      {
+        id: "undo",
+        title: "Undo / 撤销",
+        icon: "Z",
+        items: [
+          "按 ↓ Keep 后立刻按 Z，该项目回到待定队列",
+          "Keep 后按 Z，浏览窗口回到刚刚 Keep 的项目",
+          "按 ↑ Delete 后立刻按 Z，该项目回到待定队列",
+          "Delete 后按 Z，浏览窗口回到刚刚 Delete 的项目",
+          "在保留箱中“移回待定”后再按 Z，不会出现重复项目",
+          "在垃圾桶中“恢复”后再按 Z，不会出现重复项目"
+        ]
+      },
+      {
+        id: "complete",
+        title: "完成状态",
+        icon: "◎",
+        items: [
+          "所有项目都 Keep/Delete 后，浏览窗口显示“本文件夹已经浏览完”",
+          "完成后打开保留箱，可以看到 Keep 的项目",
+          "完成后打开垃圾桶，可以看到 Delete 的项目",
+          "从保留箱移回待定后，可以继续整理该项目",
+          "从垃圾桶恢复后，可以继续整理该项目"
+        ]
+      },
+      {
+        id: "close",
+        title: "关闭窗口结算",
+        icon: "↩",
+        items: [
+          "只有保留箱有项目时，关闭窗口会提示移入保留文件夹",
+          "只有垃圾桶有项目时，关闭窗口会提示删除项目",
+          "保留箱和垃圾桶都有项目时，关闭窗口会同时提示 Keep 和 Delete 数量",
+          "点击“放弃更改”后，窗口关闭，原文件不移动、不删除",
+          "点击“确认并关闭”后，Keep 项目被移动到 Keep 文件夹",
+          "点击“确认并关闭”后，Delete 项目被移动到系统废纸篓",
+          "如果 Keep 文件夹不存在，会自动创建",
+          "如果 Keep 文件夹里有同名文件，新文件不会覆盖旧文件"
+        ]
+      },
+      {
+        id: "sort-media",
+        title: "排序与混合媒体",
+        icon: "A",
+        items: [
+          "默认时间倒序时，待定队列顺序正确",
+          "切换为时间正序后，待定队列顺序变化",
+          "切换排序后，保留箱顺序也变化",
+          "切换排序后，垃圾桶顺序也变化",
+          "图片可以 Keep / Delete / 移回待定",
+          "视频可以 Keep / Delete / 移回待定",
+          "视频播放后关闭窗口，声音停止"
+        ]
+      },
+      {
+        id: "windows",
+        title: "多窗口",
+        icon: "□",
+        items: [
+          "打开一个整理窗口后，欢迎窗口关闭",
+          "整理窗口中拖入另一个文件夹，会打开新的整理窗口",
+          "同一文件夹已打开时，再拖入会出现已打开提示",
+          "关闭其中一个整理窗口时，如果还有其他整理窗口，不会额外弹出欢迎窗口",
+          "关闭最后一个整理窗口后，欢迎窗口回来"
+        ]
+      }
+    ];
+
+    const state = loadState();
+    const sectionRoot = document.getElementById("sections");
+    const chipsRoot = document.getElementById("chips");
+    const searchInput = document.getElementById("search");
+    let activeSection = "all";
+
+    renderChips();
+    renderSections();
+    updateProgress();
+    applyFilters();
+
+    document.getElementById("expandAll").addEventListener("click", () => {
+      const allOpen = [...document.querySelectorAll("details")].every(node => node.open);
+      document.querySelectorAll("details").forEach(node => node.open = !allOpen);
+      document.getElementById("expandAll").textContent = allOpen ? "展开全部" : "收起全部";
+    });
+
+    document.getElementById("resetAll").addEventListener("click", () => {
+      if (!confirm("确定要清空所有勾选状态吗？")) return;
+      state.checked = {};
+      saveState();
+      document.querySelectorAll("input[type='checkbox']").forEach(input => input.checked = false);
+      updateProgress();
+      updateSectionCounts();
+    });
+
+    document.getElementById("copyOpenIssues").addEventListener("click", async () => {
+      const openItems = getAllItems().filter(item => !state.checked[item.key]);
+      const text = openItems.map(item => `- [ ] ${item.sectionTitle}：${item.text}`).join("\n");
+      try {
+        await navigator.clipboard.writeText(text || "全部完成");
+        flashButton(document.getElementById("copyOpenIssues"), "已复制");
+      } catch {
+        alert(text || "全部完成");
+      }
+    });
+
+    searchInput.addEventListener("input", applyFilters);
+
+    function renderChips() {
+      const chips = [{ id: "all", title: "全部" }, ...sections.map(({ id, title }) => ({ id, title }))];
+      chipsRoot.innerHTML = chips.map(chip => (
+        `<span class="chip ${chip.id === activeSection ? "active" : ""}" data-chip="${chip.id}">${escapeHTML(chip.title)}</span>`
+      )).join("");
+      chipsRoot.querySelectorAll(".chip").forEach(chip => {
+        chip.addEventListener("click", () => {
+          activeSection = chip.dataset.chip;
+          chipsRoot.querySelectorAll(".chip").forEach(node => node.classList.toggle("active", node === chip));
+          applyFilters();
+        });
+      });
+    }
+
+    function renderSections() {
+      sectionRoot.innerHTML = sections.map(section => `
+        <details open data-section="${section.id}">
+          <summary>
+            <span class="section-icon">${escapeHTML(section.icon)}</span>
+            <span>
+              <span class="section-title">${escapeHTML(section.title)}</span><br>
+              <span class="section-count" data-count-for="${section.id}"></span>
+            </span>
+            <span>⌄</span>
+          </summary>
+          <div class="items">
+            ${section.items.map((text, index) => {
+              const key = `${section.id}.${index}`;
+              return `
+                <label class="item" data-key="${key}" data-text="${escapeHTML((section.title + " " + text).toLowerCase())}">
+                  <input type="checkbox" ${state.checked[key] ? "checked" : ""}>
+                  <span class="item-text">${escapeHTML(text)}</span>
+                </label>
+              `;
+            }).join("")}
+          </div>
+        </details>
+      `).join("");
+
+      sectionRoot.querySelectorAll("label.item").forEach(label => {
+        const checkbox = label.querySelector("input");
+        checkbox.addEventListener("change", () => {
+          state.checked[label.dataset.key] = checkbox.checked;
+          saveState();
+          updateProgress();
+          updateSectionCounts();
+        });
+      });
+
+      updateSectionCounts();
+    }
+
+    function applyFilters() {
+      const query = searchInput.value.trim().toLowerCase();
+      let visibleCount = 0;
+
+      document.querySelectorAll("details[data-section]").forEach(sectionNode => {
+        const sectionMatches = activeSection === "all" || sectionNode.dataset.section === activeSection;
+        let visibleItemsInSection = 0;
+
+        sectionNode.querySelectorAll("label.item").forEach(itemNode => {
+          const itemMatches = !query || itemNode.dataset.text.includes(query);
+          const visible = sectionMatches && itemMatches;
+          itemNode.hidden = !visible;
+          if (visible) {
+            visibleItemsInSection += 1;
+            visibleCount += 1;
+          }
+        });
+
+        sectionNode.hidden = !sectionMatches || visibleItemsInSection === 0;
+      });
+
+      document.getElementById("empty").classList.toggle("visible", visibleCount === 0);
+    }
+
+    function updateProgress() {
+      const items = getAllItems();
+      const total = items.length;
+      const done = items.filter(item => state.checked[item.key]).length;
+      const percent = total ? Math.round((done / total) * 100) : 0;
+      document.getElementById("percent").textContent = `${percent}%`;
+      document.getElementById("fraction").textContent = `${done} / ${total}`;
+      document.getElementById("progressBar").style.width = `${percent}%`;
+      document.getElementById("lastSaved").textContent = state.savedAt
+        ? `上次保存：${new Date(state.savedAt).toLocaleString()}`
+        : "尚未保存";
+    }
+
+    function updateSectionCounts() {
+      sections.forEach(section => {
+        const total = section.items.length;
+        const done = section.items.filter((_, index) => state.checked[`${section.id}.${index}`]).length;
+        const node = document.querySelector(`[data-count-for="${section.id}"]`);
+        if (node) node.textContent = `${done} / ${total} 完成`;
+      });
+    }
+
+    function getAllItems() {
+      return sections.flatMap(section => section.items.map((text, index) => ({
+        key: `${section.id}.${index}`,
+        text,
+        sectionTitle: section.title
+      })));
+    }
+
+    function loadState() {
+      try {
+        let raw = localStorage.getItem(STORAGE_KEY);
+        if (raw === null) {
+          const candidates = Object.keys(localStorage).filter(key =>
+            key !== STORAGE_KEY && key.endsWith(".qa.keep-pending-delete.v1")
+          );
+          if (candidates.length === 1) {
+            const previous = localStorage.getItem(candidates[0]);
+            const parsed = JSON.parse(previous);
+            if (parsed && parsed.checked && typeof parsed.checked === "object") {
+              raw = previous;
+              localStorage.setItem(STORAGE_KEY, raw);
+            }
+          }
+        }
+        return JSON.parse(raw) || { checked: {}, savedAt: null };
+      } catch {
+        return { checked: {}, savedAt: null };
+      }
+    }
+
+    function saveState() {
+      state.savedAt = new Date().toISOString();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      updateProgress();
+    }
+
+    function flashButton(button, text) {
+      const oldText = button.textContent;
+      button.textContent = text;
+      setTimeout(() => button.textContent = oldText, 900);
+    }
+
+    function escapeHTML(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+  </script>
+</body>
+</html>

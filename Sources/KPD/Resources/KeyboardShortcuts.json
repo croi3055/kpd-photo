@@ -7,6 +7,10 @@
     "keys": ["rightArrow"],
     "display": ["→"]
   },
+  "keepItem": {
+    "keys": ["downArrow"],
+    "display": ["↓"]
+  },
   "moveToTrash": {
     "keys": ["upArrow", "w"],
     "display": ["↑"]
@@ -15,9 +19,13 @@
     "keys": ["delete"],
     "display": ["Delete"]
   },
+  "toggleTimeInfo": {
+    "keys": ["i"],
+    "display": ["I"]
+  },
   "undo": {
-    "keys": ["z", "downArrow"],
-    "display": ["Z", "↓"]
+    "keys": ["z"],
+    "display": ["Z"]
   },
   "closeWindow": {
     "keys": ["escape"],

@@ -16,20 +16,20 @@
     "chinese": "选择包含图片或视频的文件夹。"
   },
   "aboutMenu": {
-    "english": "About untitled-photo-organizer",
-    "chinese": "关于 untitled-photo-organizer"
+    "english": "About KPD",
+    "chinese": "关于 KPD"
   },
   "settingsMenu": {
     "english": "Settings...",
     "chinese": "设置..."
   },
   "quitMenu": {
-    "english": "Quit untitled-photo-organizer",
-    "chinese": "退出 untitled-photo-organizer"
+    "english": "Quit KPD",
+    "chinese": "退出 KPD"
   },
   "hideMenu": {
-    "english": "Hide untitled-photo-organizer",
-    "chinese": "隐藏 untitled-photo-organizer"
+    "english": "Hide KPD",
+    "chinese": "隐藏 KPD"
   },
   "hideOthersMenu": {
     "english": "Hide Others",
@@ -40,8 +40,8 @@
     "chinese": "全部显示"
   },
   "helpMenu": {
-    "english": "untitled-photo-organizer Help",
-    "chinese": "untitled-photo-organizer 帮助"
+    "english": "KPD Help",
+    "chinese": "KPD 帮助"
   },
   "fileMenu": {
     "english": "File",
@@ -107,9 +107,17 @@
     "english": "Trash",
     "chinese": "垃圾桶"
   },
+  "keepBox": {
+    "english": "Keep Box",
+    "chinese": "保留箱"
+  },
   "openTrashBin": {
     "english": "Open Trash",
     "chinese": "打开垃圾桶"
+  },
+  "openKeepBox": {
+    "english": "Open Keep Box",
+    "chinese": "打开保留箱"
   },
   "showInFinder": {
     "english": "Show in Finder",
@@ -139,6 +147,14 @@
     "english": "Restore All",
     "chinese": "恢复全部"
   },
+  "backToPending": {
+    "english": "Back to Pending",
+    "chinese": "移回待定"
+  },
+  "allBackToPending": {
+    "english": "All Back to Pending",
+    "chinese": "全部移回待定"
+  },
   "selectAll": {
     "english": "Select All",
     "chinese": "全选"
@@ -163,9 +179,25 @@
     "english": "Delete %@ item(s) before closing?",
     "chinese": "关闭前删除 %@ 个项目？"
   },
+  "closeWithKeepMessage": {
+    "english": "Move %@ item(s) to Keep before closing?",
+    "chinese": "关闭前将 %@ 个项目移入保留文件夹？"
+  },
+  "closeWithChangesTitle": {
+    "english": "Pending Changes",
+    "chinese": "有待处理更改"
+  },
+  "closeWithChangesMessage": {
+    "english": "%@ item(s) will move to Keep. %@ item(s) will be deleted.",
+    "chinese": "%@ 个项目将移入保留文件夹，%@ 个项目将删除。"
+  },
   "moveToTrashAndClose": {
     "english": "Delete and Close",
     "chinese": "删除并关闭"
+  },
+  "applyAndClose": {
+    "english": "Confirm and Close",
+    "chinese": "确认并关闭"
   },
   "discardChangesAndClose": {
     "english": "Discard Changes",
@@ -227,6 +259,10 @@
     "english": "%@ file(s) could not be deleted.",
     "chinese": "%@ 个文件无法删除。"
   },
+  "keepMoveFailedError": {
+    "english": "%@ file(s) could not be moved to Keep.",
+    "chinese": "%@ 个文件无法移入保留文件夹。"
+  },
   "noFolderSelected": {
     "english": "No folder selected",
     "chinese": "未选择文件夹"
@@ -240,8 +276,8 @@
     "chinese": "不导入 • 不缓存"
   },
   "appTitle": {
-    "english": "untitled-photo-organizer",
-    "chinese": "untitled-photo-organizer"
+    "english": "KPD",
+    "chinese": "KPD"
   },
   "shortcuts": {
     "english": "Shortcuts",
@@ -252,8 +288,8 @@
     "chinese": "快速上手"
   },
   "gettingStartedMessage": {
-    "english": "Drop a Finder folder, photos, or videos to start organizing. untitled-photo-organizer keeps your media in place.",
-    "chinese": "拖入 Finder 文件夹、图片或视频即可开始整理。untitled-photo-organizer 会让媒体保留在原位置。"
+    "english": "Drop a Finder folder, photos, or videos to start organizing. KPD keeps your media in place.",
+    "chinese": "拖入 Finder 文件夹、图片或视频即可开始整理。KPD 会让媒体保留在原位置。"
   },
   "gotIt": {
     "english": "Got It",
@@ -284,6 +320,10 @@
     "english": "Next Item",
     "chinese": "下一个项目"
   },
+  "actionKeepItem": {
+    "english": "Keep Item",
+    "chinese": "保留项目"
+  },
   "actionMarkForTrash": {
     "english": "Add to Trash",
     "chinese": "加入垃圾桶"
@@ -295,6 +335,10 @@
   "actionReviewDeletes": {
     "english": "Open Trash",
     "chinese": "查看垃圾桶"
+  },
+  "actionToggleTimeInfo": {
+    "english": "Show/Hide Time",
+    "chinese": "显示/隐藏时间"
   },
   "actionOpenNewWindow": {
     "english": "Open New Organizer Window",

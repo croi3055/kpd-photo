@@ -3,32 +3,32 @@
 import PackageDescription
 
 let package = Package(
-    name: "WASDPhoto",
+    name: "KPD",
     platforms: [
         .macOS(.v14)
     ],
     products: [
-        .executable(name: "WASDPhoto", targets: ["WASDPhoto"]),
-        .executable(name: "WASDPhotoCoreSmokeTests", targets: ["WASDPhotoCoreSmokeTests"]),
-        .library(name: "WASDPhotoCore", targets: ["WASDPhotoCore"])
+        .executable(name: "KPD", targets: ["KPD"]),
+        .executable(name: "KPDCoreSmokeTests", targets: ["KPDCoreSmokeTests"]),
+        .library(name: "KPDCore", targets: ["KPDCore"])
     ],
     targets: [
         .executableTarget(
-            name: "WASDPhoto",
-            dependencies: ["WASDPhotoCore"],
-            path: "Sources/WASDPhoto",
+            name: "KPD",
+            dependencies: ["KPDCore"],
+            path: "Sources/KPD",
             resources: [
                 .process("Resources")
             ]
         ),
         .target(
-            name: "WASDPhotoCore",
-            path: "Sources/WASDPhotoCore"
+            name: "KPDCore",
+            path: "Sources/KPDCore"
         ),
         .executableTarget(
-            name: "WASDPhotoCoreSmokeTests",
-            dependencies: ["WASDPhotoCore"],
-            path: "Tests/WASDPhotoCoreSmokeTests"
+            name: "KPDCoreSmokeTests",
+            dependencies: ["KPDCore"],
+            path: "Tests/KPDCoreSmokeTests"
         )
     ]
 )

@@ -1,6 +1,9 @@
 import SwiftUI
 
-// Font Awesome Free "trash" icon, adapted as a SwiftUI vector shape.
+// Font Awesome Free 6.7.2 "trash" icon by @fontawesome.
+// Copyright 2024 Fonticons, Inc. https://fontawesome.com
+// Icon license: CC BY 4.0 https://creativecommons.org/licenses/by/4.0/
+// Adapted from SVG to a scalable SwiftUI Path; see THIRD_PARTY_NOTICES.md.
 struct FontAwesomeTrashIcon: Shape {
     func path(in rect: CGRect) -> Path {
         let scale = min(rect.width / 448, rect.height / 512)

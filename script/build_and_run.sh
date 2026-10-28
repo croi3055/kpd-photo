@@ -2,9 +2,9 @@
 set -euo pipefail
 
 MODE="${1:-run}"
-APP_NAME="WASDPhoto"
-DISPLAY_NAME="untitled-photo-organizer"
-BUNDLE_ID="app.wasd.WASDPhoto"
+APP_NAME="KPD"
+DISPLAY_NAME="KPD"
+BUNDLE_ID="app.kpd.KPD"
 MIN_SYSTEM_VERSION="14.0"
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -16,10 +16,14 @@ APP_RESOURCES="$APP_CONTENTS/Resources"
 APP_BINARY="$APP_MACOS/$APP_NAME"
 INFO_PLIST="$APP_CONTENTS/Info.plist"
 
-pkill -x "$APP_NAME" >/dev/null 2>&1 || true
+cd "$ROOT_DIR"
 
-swift build
-BUILD_BINARY="$(swift build --show-bin-path)/$APP_NAME"
+BUILD_ARGS=()
+if [[ -n "${SDKROOT:-}" ]]; then
+  BUILD_ARGS+=(--sdk "$SDKROOT")
+fi
+swift build "${BUILD_ARGS[@]}"
+BUILD_BINARY="$(swift build "${BUILD_ARGS[@]}" --show-bin-path)/$APP_NAME"
 
 rm -rf "$APP_BUNDLE"
 mkdir -p "$APP_MACOS"
@@ -27,13 +31,13 @@ mkdir -p "$APP_RESOURCES"
 cp "$BUILD_BINARY" "$APP_BINARY"
 chmod +x "$APP_BINARY"
 
-RESOURCE_BUNDLE="$(swift build --show-bin-path)/WASDPhoto_WASDPhoto.bundle"
+RESOURCE_BUNDLE="$(swift build "${BUILD_ARGS[@]}" --show-bin-path)/KPD_KPD.bundle"
 if [[ -d "$RESOURCE_BUNDLE" ]]; then
-  cp -R "$RESOURCE_BUNDLE" "$APP_RESOURCES/"
+  cp -R "$RESOURCE_BUNDLE" "$APP_BUNDLE/"
 fi
 
-if [[ -f "$ROOT_DIR/Sources/WASDPhoto/Resources/AppIcon.icns" ]]; then
-  cp "$ROOT_DIR/Sources/WASDPhoto/Resources/AppIcon.icns" "$APP_RESOURCES/AppIcon.icns"
+if [[ -f "$ROOT_DIR/Sources/KPD/Resources/AppIcon.icns" ]]; then
+  cp "$ROOT_DIR/Sources/KPD/Resources/AppIcon.icns" "$APP_RESOURCES/AppIcon.icns"
 fi
 
 cat >"$INFO_PLIST" <<PLIST
@@ -66,6 +70,8 @@ open_app() {
 }
 
 case "$MODE" in
+  --build-only|build-only)
+    ;;
   run)
     open_app
     ;;
@@ -86,7 +92,7 @@ case "$MODE" in
     pgrep -x "$APP_NAME" >/dev/null
     ;;
   *)
-    echo "usage: $0 [run|--debug|--logs|--telemetry|--verify]" >&2
+    echo "usage: $0 [run|--build-only|--debug|--logs|--telemetry|--verify]" >&2
     exit 2
     ;;
 esac

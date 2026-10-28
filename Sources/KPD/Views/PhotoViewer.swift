@@ -1,7 +1,7 @@
 import AppKit
 import AVKit
 import SwiftUI
-import WASDPhotoCore
+import KPDCore
 
 struct PhotoViewer: View {
     let photo: PhotoItem

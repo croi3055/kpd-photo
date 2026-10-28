@@ -1,5 +1,5 @@
 import SwiftUI
-import WASDPhotoCore
+import KPDCore
 
 @Observable
 final class AppPreferences {

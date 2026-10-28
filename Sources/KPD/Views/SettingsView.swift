@@ -27,9 +27,11 @@ struct SettingsView: View {
                 ShortcutSettingsRow(action: strings.actionOpenFolder, keys: ["⌘", "O"])
                 ShortcutSettingsRow(action: strings.actionPreviousItem, keys: KeyboardShortcuts.shared.display(for: .previousItem))
                 ShortcutSettingsRow(action: strings.actionNextItem, keys: KeyboardShortcuts.shared.display(for: .nextItem))
+                ShortcutSettingsRow(action: strings.actionKeepItem, keys: KeyboardShortcuts.shared.display(for: .keepItem))
                 ShortcutSettingsRow(action: strings.actionMarkForTrash, keys: KeyboardShortcuts.shared.display(for: .moveToTrash))
                 ShortcutSettingsRow(action: strings.actionUndo, keys: KeyboardShortcuts.shared.display(for: .undo))
                 ShortcutSettingsRow(action: strings.actionReviewDeletes, keys: KeyboardShortcuts.shared.display(for: .openTrashBin))
+                ShortcutSettingsRow(action: strings.actionToggleTimeInfo, keys: KeyboardShortcuts.shared.display(for: .toggleTimeInfo))
                 ShortcutSettingsRow(action: strings.actionOpenNewWindow, keys: [strings.keyDropFolder])
             }
 

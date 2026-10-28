@@ -1,5 +1,5 @@
 import Foundation
-import WASDPhotoCore
+import KPDCore
 
 func expect(_ condition: @autoclosure () -> Bool, _ message: String) {
     if !condition() {
@@ -62,6 +62,20 @@ session.setSortOrder(.oldestFirst)
 expect(session.photos.map(\.fileName) == ["a.jpg", "b.PNG", "c.mov"], "PhotoSession should reorder current media.")
 expect(session.currentIndex == 0, "PhotoSession should jump to the first item after changing sort order.")
 session.currentIndex = 0
+session.keepCurrentPhoto()
+expect(session.keptCount == 1, "Keeping an item should add it to the keep box.")
+expect(session.keptItems.map(\.fileName) == ["a.jpg"], "Keeping an item should move it into the keep box.")
+expect(session.photos.map(\.fileName) == ["b.PNG", "c.mov"], "Kept items should leave the pending browsing list.")
+expect(session.currentPhoto?.fileName == "b.PNG", "After keeping, the next pending item should become current.")
+session.undoLastAction()
+expect(session.currentPhoto?.fileName == "a.jpg", "Undoing keep should return to the kept item.")
+expect(session.keptCount == 0, "Undoing keep should remove the kept mark.")
+session.keepCurrentPhoto()
+session.moveKeptToPending(urls: Set(session.keptItems.map(\.url)))
+expect(session.keptItems.isEmpty, "Moving kept items back to pending should empty the keep box.")
+expect(session.photos.map(\.fileName) == ["a.jpg", "b.PNG", "c.mov"], "Moving kept items back should restore the active sort order.")
+session.undoLastAction()
+expect(session.photos.map(\.fileName) == ["a.jpg", "b.PNG", "c.mov"], "Undo after moving kept items back should not duplicate pending items.")
 session.markCurrentPhotoForDeletion()
 expect(session.photos.map(\.fileName) == ["b.PNG", "c.mov"], "Marked items should leave the browsing list.")
 expect(session.trashItems.map(\.fileName) == ["a.jpg"], "Marked items should move into the app trash bin.")
@@ -112,4 +126,41 @@ expect(deleteSession.photos.map(\.fileName).contains("b.PNG"), "Undo should stil
 deleteSession.undoLastAction()
 expect(!deleteSession.photos.map(\.fileName).contains("c.mov"), "Undo should not restore items after confirmed deletion.")
 
-print("WASDPhotoCoreSmokeTests passed")
+let fakeKeepService = KeepService { urls in
+    return KeepResult(moved: urls, failed: [])
+}
+let keepSession = PhotoSession(keepService: fakeKeepService)
+keepSession.open(folderURL: folderURL, sortOrder: .newestFirst)
+keepSession.keepCurrentPhoto()
+expect(keepSession.keptItems.map(\.fileName) == ["c.mov"], "Keep test should queue the newest item in the keep box.")
+let confirmedKeepURL = keepSession.keptItems[0].url
+keepSession.confirmKeepBox(urls: [confirmedKeepURL])
+expect(keepSession.keptItems.isEmpty, "Confirming keep should remove confirmed items from the keep box.")
+keepSession.undoLastAction()
+expect(!keepSession.photos.map(\.fileName).contains("c.mov"), "Undo should not restore items after confirmed keep.")
+
+// Verify the filesystem contract independently of the simulated services above.
+let pendingURL = folderURL.appendingPathComponent("b.PNG")
+let pendingData = try Data(contentsOf: pendingURL)
+let reopenSession = PhotoSession()
+reopenSession.open(folderURL: folderURL)
+reopenSession.showNextPhoto()
+reopenSession.open(folderURL: folderURL)
+expect(reopenSession.photos.contains { $0.fileName == pendingURL.lastPathComponent }, "Pending must reappear when reopening the folder.")
+let afterBrowseData = try Data(contentsOf: pendingURL)
+expect(afterBrowseData == pendingData, "Browsing must not modify pending media.")
+let keepDirectory = folderURL.appendingPathComponent("Keep", isDirectory: true)
+try FileManager.default.createDirectory(at: keepDirectory, withIntermediateDirectories: true)
+let existingKeepURL = keepDirectory.appendingPathComponent("b.PNG")
+let existingData = Data("existing".utf8)
+try existingData.write(to: existingKeepURL)
+let actualKeep = KeepService().moveToKeep(urls: [pendingURL])
+expect(actualKeep.failed.isEmpty && actualKeep.moved == [pendingURL], "Keep should move the selected file successfully.")
+let preservedData = try Data(contentsOf: existingKeepURL)
+expect(preservedData == existingData, "Keep must not overwrite an existing file.")
+expect(FileManager.default.fileExists(atPath: keepDirectory.appendingPathComponent("b 2.PNG").path), "Keep must choose a unique destination.")
+let rescanned = try FolderScanner().scan(folderURL: folderURL)
+expect(!rescanned.contains { $0.fileName == pendingURL.lastPathComponent }, "Confirmed Keep should not reappear in the original folder scan.")
+expect(rescanned.contains { $0.fileName == "c.mov" }, "Unchanged pending media must remain in the original folder.")
+
+print("KPDCoreSmokeTests passed")

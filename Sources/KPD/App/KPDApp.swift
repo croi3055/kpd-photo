@@ -1,16 +1,16 @@
 import AppKit
 import SwiftUI
-import WASDPhotoCore
+import KPDCore
 
 @main
-struct WASDPhotoApp: App {
+struct KPDApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var preferences = AppPreferences()
     @State private var windowCoordinator = AppWindowCoordinator()
 
     var body: some Scene {
         Group {
-            WindowGroup("untitled-photo-organizer", id: "welcome") {
+            WindowGroup("KPD", id: "welcome") {
                 WelcomeWindowView(preferences: preferences, windowCoordinator: windowCoordinator)
                     .preferredColorScheme(preferences.colorScheme)
             }
@@ -34,7 +34,7 @@ struct WASDPhotoApp: App {
             }
         }
         .commands {
-            WASDPhotoCommands(preferences: preferences, windowCoordinator: windowCoordinator)
+            KPDCommands(preferences: preferences, windowCoordinator: windowCoordinator)
         }
     }
 }
@@ -57,17 +57,17 @@ extension Notification.Name {
     static let openFolderRequested = Notification.Name("openFolderRequested")
 }
 
-struct WASDPhotoCommands: Commands {
+struct KPDCommands: Commands {
     @Bindable var preferences: AppPreferences
     @Bindable var windowCoordinator: AppWindowCoordinator
 
     var body: some Commands {
-        WASDPhotoPrimaryCommands(preferences: preferences, windowCoordinator: windowCoordinator)
-        WASDPhotoCleanupCommands(preferences: preferences)
+        KPDPrimaryCommands(preferences: preferences, windowCoordinator: windowCoordinator)
+        KPDCleanupCommands(preferences: preferences)
     }
 }
 
-private struct WASDPhotoPrimaryCommands: Commands {
+private struct KPDPrimaryCommands: Commands {
     @Bindable var preferences: AppPreferences
     @Bindable var windowCoordinator: AppWindowCoordinator
     @Environment(\.openWindow) private var openWindow
@@ -139,7 +139,7 @@ private struct WASDPhotoPrimaryCommands: Commands {
     }
 }
 
-private struct WASDPhotoCleanupCommands: Commands {
+private struct KPDCleanupCommands: Commands {
     @Bindable var preferences: AppPreferences
 
     var body: some Commands {
@@ -180,5 +180,5 @@ private struct WASDPhotoCleanupCommands: Commands {
 }
 
 extension NSUserInterfaceItemIdentifier {
-    static let wasdWelcomeWindow = NSUserInterfaceItemIdentifier("app.wasd.WASDPhoto.welcomeWindow")
+    static let kpdWelcomeWindow = NSUserInterfaceItemIdentifier("app.kpd.KPD.welcomeWindow")
 }

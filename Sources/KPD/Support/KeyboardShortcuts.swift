@@ -4,8 +4,10 @@ import Foundation
 enum KeyEvent: String {
     case previousItem
     case nextItem
+    case keepItem
     case moveToTrash
     case openTrashBin
+    case toggleTimeInfo
     case undo
     case closeWindow
 }
@@ -65,9 +67,11 @@ final class KeyboardShortcuts {
     private static let fallbackBindings: [KeyEvent: ShortcutBinding] = [
         .previousItem: ShortcutBinding(keys: ["leftArrow"], display: ["←"]),
         .nextItem: ShortcutBinding(keys: ["rightArrow"], display: ["→"]),
+        .keepItem: ShortcutBinding(keys: ["downArrow"], display: ["↓"]),
         .moveToTrash: ShortcutBinding(keys: ["upArrow", "w"], display: ["↑"]),
         .openTrashBin: ShortcutBinding(keys: ["delete"], display: ["Delete"]),
-        .undo: ShortcutBinding(keys: ["z", "downArrow"], display: ["Z", "↓"]),
+        .toggleTimeInfo: ShortcutBinding(keys: ["i"], display: ["I"]),
+        .undo: ShortcutBinding(keys: ["z"], display: ["Z"]),
         .closeWindow: ShortcutBinding(keys: ["escape"], display: ["Esc"])
     ]
 }

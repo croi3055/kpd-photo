@@ -19,7 +19,7 @@ final class AppWindowCoordinator {
 
     func registerWelcomeWindow(_ window: NSWindow?) {
         welcomeWindow = window
-        window?.identifier = .wasdWelcomeWindow
+        window?.identifier = .kpdWelcomeWindow
         configureWelcomeWindow(window)
         DispatchQueue.main.async {
             self.configureWelcomeWindow(window)
@@ -43,7 +43,7 @@ final class AppWindowCoordinator {
     func closeWelcomeWindow() {
         DispatchQueue.main.async {
             let welcomeWindows = NSApp.windows.filter { window in
-                window.identifier == .wasdWelcomeWindow
+                window.identifier == .kpdWelcomeWindow
             }
 
             if welcomeWindows.isEmpty {
@@ -61,7 +61,7 @@ final class AppWindowCoordinator {
             return
         }
 
-        window.identifier = .wasdOrganizerWindow
+        window.identifier = .kpdOrganizerWindow
         window.representedURL = input.primaryDisplayURL
         window.title = input.windowTitle
 
@@ -134,7 +134,7 @@ final class AppWindowCoordinator {
         }
 
         return NSApp.windows.first { window in
-            window.identifier == .wasdWelcomeWindow && window.isVisible
+            window.identifier == .kpdWelcomeWindow && window.isVisible
         }
     }
 
@@ -185,5 +185,5 @@ extension OrganizerInput {
 }
 
 extension NSUserInterfaceItemIdentifier {
-    static let wasdOrganizerWindow = NSUserInterfaceItemIdentifier("app.wasd.WASDPhoto.organizerWindow")
+    static let kpdOrganizerWindow = NSUserInterfaceItemIdentifier("app.kpd.KPD.organizerWindow")
 }

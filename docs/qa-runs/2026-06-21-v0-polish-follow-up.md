@@ -33,7 +33,7 @@ This run records manual QA findings from the user and the fixes implemented in r
 ## Verification
 
 - `swift build` passed.
-- `swift run WASDPhotoCoreSmokeTests` passed.
+- `swift run KPDCoreSmokeTests` passed.
 - `./script/build_and_run.sh --verify` passed.
 
 ## Retest Needed

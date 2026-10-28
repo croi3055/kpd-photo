@@ -1,7 +1,7 @@
 import AppKit
 import AVFoundation
 import SwiftUI
-import WASDPhotoCore
+import KPDCore
 
 struct TrashBinView: View {
     @Bindable var session: PhotoSession
@@ -43,7 +43,7 @@ struct TrashBinView: View {
                                 item: item,
                                 isSelected: selectedURLs.contains(item.url),
                                 isFocused: focusedIndex == index,
-                                strings: strings
+                                helpLabel: strings.trashBin
                             ) {
                                 focusedIndex = index
                                 selectionAnchorIndex = index
@@ -331,11 +331,297 @@ struct TrashBinView: View {
     }
 }
 
+struct KeepBoxView: View {
+    @Bindable var session: PhotoSession
+    let strings: AppStrings
+    @Environment(\.dismiss) private var dismiss
+    @State private var selectedURLs: Set<URL> = []
+    @State private var focusedIndex = 0
+    @State private var selectionAnchorIndex = 0
+    @State private var rangeSelectionBase: Set<URL>?
+    @State private var rangeSelectionMode: RangeSelectionMode?
+    @State private var previewIndex: Int?
+
+    private let columnCount = 4
+    private let columns = Array(repeating: GridItem(.fixed(112), spacing: 14), count: 4)
+
+    var body: some View {
+        VStack(spacing: 0) {
+            if session.keptItems.isEmpty {
+                ContentUnavailableView(strings.keepBox, systemImage: "archivebox")
+                    .frame(minHeight: 260)
+            } else {
+                HStack {
+                    Spacer()
+
+                    Text(keepSummary)
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+
+                    Spacer()
+                }
+                .padding(.horizontal)
+                .padding(.top)
+
+                ScrollView {
+                    LazyVGrid(columns: columns, spacing: 14) {
+                        ForEach(Array(session.keptItems.enumerated()), id: \.element.id) { index, item in
+                            TrashThumbnailCell(
+                                item: item,
+                                isSelected: selectedURLs.contains(item.url),
+                                isFocused: focusedIndex == index,
+                                helpLabel: strings.keepBox
+                            ) {
+                                focusedIndex = index
+                                selectionAnchorIndex = index
+                                toggleSelection(item.url)
+                            }
+                        }
+                    }
+                    .padding()
+                }
+                .frame(minHeight: 320)
+            }
+
+            Divider()
+
+            HStack {
+                Button(strings.cancel) {
+                    dismiss()
+                }
+
+                Spacer()
+
+                if !session.keptItems.isEmpty {
+                    Button(selectAllButtonTitle) {
+                        toggleAllSelection()
+                    }
+                }
+
+                if selectedURLs.isEmpty {
+                    Button(strings.allBackToPending) {
+                        moveAllBackToPending()
+                    }
+                    .disabled(session.keptItems.isEmpty)
+                } else {
+                    Button {
+                        moveSelectedBackToPending()
+                        clearSelectionState()
+                    } label: {
+                        ButtonTitleWithKeyCaps(title: strings.backToPending, keys: ["R"])
+                    }
+                }
+            }
+            .padding()
+        }
+        .frame(width: 560)
+        .background(
+            TrashBinKeyboardHandler(isActive: !session.keptItems.isEmpty) { event in
+                handleKeyboardEvent(event)
+            }
+        )
+        .sheet(isPresented: previewPresentation) {
+            if !session.keptItems.isEmpty {
+                TrashPreviewView(items: session.keptItems, currentIndex: previewIndexBinding, strings: strings)
+            }
+        }
+        .onAppear {
+            clampFocusedIndex()
+        }
+        .onChange(of: session.keptItems) { _, _ in
+            selectedURLs = selectedURLs.filter { url in
+                session.keptItems.contains { $0.url == url }
+            }
+            clampFocusedIndex()
+            clampPreviewIndex()
+        }
+    }
+
+    private var previewPresentation: Binding<Bool> {
+        Binding(
+            get: { previewIndex != nil },
+            set: { isPresented in
+                if !isPresented {
+                    previewIndex = nil
+                }
+            }
+        )
+    }
+
+    private var previewIndexBinding: Binding<Int> {
+        Binding(
+            get: {
+                guard !session.keptItems.isEmpty else {
+                    return 0
+                }
+                return min(max(previewIndex ?? focusedIndex, 0), session.keptItems.count - 1)
+            },
+            set: { newValue in
+                guard !session.keptItems.isEmpty else {
+                    previewIndex = nil
+                    return
+                }
+                previewIndex = min(max(newValue, 0), session.keptItems.count - 1)
+            }
+        )
+    }
+
+    private var isAllSelected: Bool {
+        !session.keptItems.isEmpty && selectedURLs.count == session.keptItems.count
+    }
+
+    private var selectAllButtonTitle: String {
+        isAllSelected ? strings.deselectAll : strings.selectAll
+    }
+
+    private var keepSummary: String {
+        let photoCount = session.keptItems.filter { $0.kind == .image }.count
+        let videoCount = session.keptItems.filter { $0.kind == .video }.count
+        return strings.trashSummary(photoCount: photoCount, videoCount: videoCount)
+    }
+
+    private func toggleSelection(_ url: URL) {
+        if selectedURLs.contains(url) {
+            selectedURLs.remove(url)
+        } else {
+            selectedURLs.insert(url)
+        }
+        rangeSelectionBase = nil
+        rangeSelectionMode = nil
+    }
+
+    private func toggleAllSelection() {
+        if isAllSelected {
+            selectedURLs = []
+        } else {
+            selectedURLs = Set(session.keptItems.map(\.url))
+        }
+        rangeSelectionBase = nil
+        rangeSelectionMode = nil
+    }
+
+    private func moveSelectedBackToPending() {
+        session.moveKeptToPending(urls: selectedURLs)
+    }
+
+    private func moveAllBackToPending() {
+        session.moveKeptToPending(urls: Set(session.keptItems.map(\.url)))
+        clearSelectionState()
+    }
+
+    private func clearSelectionState() {
+        selectedURLs = []
+        rangeSelectionBase = nil
+        rangeSelectionMode = nil
+    }
+
+    private func handleKeyboardEvent(_ event: TrashBinKeyboardEvent) {
+        guard !session.keptItems.isEmpty else {
+            return
+        }
+
+        switch event {
+        case .move(let direction, let isExtendingSelection):
+            moveFocus(direction: direction, isExtendingSelection: isExtendingSelection)
+        case .toggleSelection:
+            let item = session.keptItems[focusedIndex]
+            selectionAnchorIndex = focusedIndex
+            rangeSelectionBase = nil
+            toggleSelection(item.url)
+        case .preview:
+            previewIndex = focusedIndex
+        case .toggleAll:
+            toggleAllSelection()
+        case .restoreSelected:
+            guard !selectedURLs.isEmpty else {
+                return
+            }
+            moveSelectedBackToPending()
+            clearSelectionState()
+        case .deleteSelected, .deleteAll:
+            return
+        }
+    }
+
+    private func moveFocus(direction: TrashBinMoveDirection, isExtendingSelection: Bool) {
+        let previousIndex = focusedIndex
+        let candidateIndex: Int
+
+        switch direction {
+        case .left:
+            candidateIndex = focusedIndex - 1
+        case .right:
+            candidateIndex = focusedIndex + 1
+        case .up:
+            candidateIndex = focusedIndex - columnCount
+        case .down:
+            candidateIndex = focusedIndex + columnCount
+        }
+
+        focusedIndex = min(max(candidateIndex, 0), session.keptItems.count - 1)
+
+        if isExtendingSelection {
+            if rangeSelectionBase == nil {
+                selectionAnchorIndex = previousIndex
+                rangeSelectionBase = selectedURLs
+                let anchorURL = session.keptItems[previousIndex].url
+                rangeSelectionMode = selectedURLs.contains(anchorURL) ? .remove : .insert
+            }
+            applyRangeSelection(from: selectionAnchorIndex, to: focusedIndex)
+        } else {
+            rangeSelectionBase = nil
+            rangeSelectionMode = nil
+            selectionAnchorIndex = focusedIndex
+        }
+    }
+
+    private func applyRangeSelection(from start: Int, to end: Int) {
+        let lower = min(start, end)
+        let upper = max(start, end)
+        let originalSelection = rangeSelectionBase ?? selectedURLs
+        let activeRangeURLs = Set(session.keptItems[lower...upper].map(\.url))
+
+        switch rangeSelectionMode ?? .insert {
+        case .insert:
+            selectedURLs = originalSelection.union(activeRangeURLs)
+        case .remove:
+            selectedURLs = originalSelection.subtracting(activeRangeURLs)
+        }
+    }
+
+    private func clampFocusedIndex() {
+        guard !session.keptItems.isEmpty else {
+            focusedIndex = 0
+            selectionAnchorIndex = 0
+            rangeSelectionBase = nil
+            rangeSelectionMode = nil
+            previewIndex = nil
+            return
+        }
+
+        focusedIndex = min(max(focusedIndex, 0), session.keptItems.count - 1)
+        selectionAnchorIndex = min(max(selectionAnchorIndex, 0), session.keptItems.count - 1)
+    }
+
+    private func clampPreviewIndex() {
+        guard let previewIndex else {
+            return
+        }
+
+        guard !session.keptItems.isEmpty else {
+            self.previewIndex = nil
+            return
+        }
+
+        self.previewIndex = min(max(previewIndex, 0), session.keptItems.count - 1)
+    }
+}
+
 private struct TrashThumbnailCell: View {
     let item: PhotoItem
     let isSelected: Bool
     let isFocused: Bool
-    let strings: AppStrings
+    let helpLabel: String
     let toggleSelection: () -> Void
 
     var body: some View {
@@ -371,7 +657,7 @@ private struct TrashThumbnailCell: View {
         }
         .buttonStyle(.plain)
         .frame(width: 112, height: 136, alignment: .top)
-        .help(strings.trashBin)
+        .help(helpLabel)
     }
 }
 

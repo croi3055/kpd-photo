@@ -1,6 +1,6 @@
 import AppKit
 import SwiftUI
-import WASDPhotoCore
+import KPDCore
 
 struct WelcomeWindowView: View {
     @Bindable var preferences: AppPreferences

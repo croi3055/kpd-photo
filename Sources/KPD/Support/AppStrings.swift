@@ -1,5 +1,5 @@
 import Foundation
-import WASDPhotoCore
+import KPDCore
 
 struct AppStrings {
     let language: AppLanguage
@@ -32,7 +32,9 @@ struct AppStrings {
     var ok: String { text("ok") }
     var moveToTrash: String { text("moveToTrash") }
     var trashBin: String { text("trashBin") }
+    var keepBox: String { text("keepBox") }
     var openTrashBin: String { text("openTrashBin") }
+    var openKeepBox: String { text("openKeepBox") }
     var showInFinder: String { text("showInFinder") }
     var openInPreview: String { text("openInPreview") }
     var shareViaAirDrop: String { text("shareViaAirDrop") }
@@ -40,10 +42,13 @@ struct AppStrings {
     var moveSelectedToTrash: String { text("moveSelectedToTrash") }
     var restoreSelected: String { text("restoreSelected") }
     var restoreAll: String { text("restoreAll") }
+    var backToPending: String { text("backToPending") }
+    var allBackToPending: String { text("allBackToPending") }
     var selectAll: String { text("selectAll") }
     var deselectAll: String { text("deselectAll") }
     var emptyTrashTitle: String { text("emptyTrashTitle") }
     var moveToTrashAndClose: String { text("moveToTrashAndClose") }
+    var applyAndClose: String { text("applyAndClose") }
     var discardChangesAndClose: String { text("discardChangesAndClose") }
     var restore: String { text("restore") }
     var emptyTrashBin: String { text("emptyTrashBin") }
@@ -71,9 +76,11 @@ struct AppStrings {
     var actionOpenFolder: String { text("actionOpenFolder") }
     var actionPreviousItem: String { text("actionPreviousItem") }
     var actionNextItem: String { text("actionNextItem") }
+    var actionKeepItem: String { text("actionKeepItem") }
     var actionMarkForTrash: String { text("actionMarkForTrash") }
     var actionUndo: String { text("actionUndo") }
     var actionReviewDeletes: String { text("actionReviewDeletes") }
+    var actionToggleTimeInfo: String { text("actionToggleTimeInfo") }
     var actionOpenNewWindow: String { text("actionOpenNewWindow") }
     var keyButton: String { text("keyButton") }
     var keyDropFolder: String { text("keyDropFolder") }
@@ -109,7 +116,24 @@ struct AppStrings {
         text("closeWithTrashMessage", count)
     }
 
+    func closeWithKeepMessage(count: Int) -> String {
+        text("closeWithKeepMessage", count)
+    }
+
     var closeWithTrashTitle: String { text("closeWithTrashTitle") }
+    var closeWithChangesTitle: String { text("closeWithChangesTitle") }
+
+    func closeWithChangesMessage(keepCount: Int, trashCount: Int) -> String {
+        if keepCount > 0, trashCount == 0 {
+            return closeWithKeepMessage(count: keepCount)
+        }
+
+        if trashCount > 0, keepCount == 0 {
+            return closeWithTrashMessage(count: trashCount)
+        }
+
+        return text("closeWithChangesMessage", keepCount, trashCount)
+    }
 
     func markedCount(_ count: Int) -> String {
         text("markedCount", count)
@@ -121,6 +145,8 @@ struct AppStrings {
             return text("unsupportedMediaError")
         case .trashMoveFailed(let count):
             return text("trashMoveFailedError", count)
+        case .keepMoveFailed(let count):
+            return text("keepMoveFailedError", count)
         case .emptyRename:
             return text("emptyRenameError")
         case .renameConflict(let fileName):
@@ -192,7 +218,7 @@ private final class AppStringCatalog {
 
         urls.append(
             projectRootFromBundle
-                .appendingPathComponent("Sources/WASDPhoto/Resources/LocalizableContent.json")
+                .appendingPathComponent("Sources/KPD/Resources/LocalizableContent.json")
         )
 
         if let bundledURL = Bundle.module.url(forResource: "LocalizableContent", withExtension: "json") {
@@ -210,13 +236,13 @@ private final class AppStringCatalog {
             "english": "Choose a folder that contains photos or videos.",
             "chinese": "选择包含图片或视频的文件夹。"
         ],
-        "aboutMenu": ["english": "About untitled-photo-organizer", "chinese": "关于 untitled-photo-organizer"],
+        "aboutMenu": ["english": "About KPD", "chinese": "关于 KPD"],
         "settingsMenu": ["english": "Settings...", "chinese": "设置..."],
-        "quitMenu": ["english": "Quit untitled-photo-organizer", "chinese": "退出 untitled-photo-organizer"],
-        "hideMenu": ["english": "Hide untitled-photo-organizer", "chinese": "隐藏 untitled-photo-organizer"],
+        "quitMenu": ["english": "Quit KPD", "chinese": "退出 KPD"],
+        "hideMenu": ["english": "Hide KPD", "chinese": "隐藏 KPD"],
         "hideOthersMenu": ["english": "Hide Others", "chinese": "隐藏其他"],
         "showAllMenu": ["english": "Show All", "chinese": "全部显示"],
-        "helpMenu": ["english": "untitled-photo-organizer Help", "chinese": "untitled-photo-organizer 帮助"],
+        "helpMenu": ["english": "KPD Help", "chinese": "KPD 帮助"],
         "fileMenu": ["english": "File", "chinese": "文件"],
         "editMenu": ["english": "Edit", "chinese": "编辑"],
         "viewMenu": ["english": "View", "chinese": "显示"],
@@ -233,7 +259,9 @@ private final class AppStringCatalog {
         "ok": ["english": "OK", "chinese": "好"],
         "moveToTrash": ["english": "Mark for Deletion", "chinese": "加入垃圾桶"],
         "trashBin": ["english": "Trash", "chinese": "垃圾桶"],
+        "keepBox": ["english": "Keep Box", "chinese": "保留箱"],
         "openTrashBin": ["english": "Open Trash", "chinese": "打开垃圾桶"],
+        "openKeepBox": ["english": "Open Keep Box", "chinese": "打开保留箱"],
         "showInFinder": ["english": "Show in Finder", "chinese": "在 Finder 中显示"],
         "openInPreview": ["english": "Open in Preview", "chinese": "在预览中打开"],
         "shareViaAirDrop": ["english": "AirDrop", "chinese": "隔空投送"],
@@ -241,6 +269,8 @@ private final class AppStringCatalog {
         "moveSelectedToTrash": ["english": "Delete Selected", "chinese": "删除所选"],
         "restoreSelected": ["english": "Restore Selected", "chinese": "恢复所选"],
         "restoreAll": ["english": "Restore All", "chinese": "恢复全部"],
+        "backToPending": ["english": "Back to Pending", "chinese": "移回待定"],
+        "allBackToPending": ["english": "All Back to Pending", "chinese": "全部移回待定"],
         "selectAll": ["english": "Select All", "chinese": "全选"],
         "deselectAll": ["english": "Deselect All", "chinese": "取消全选"],
         "emptyTrashTitle": ["english": "Delete Items?", "chinese": "确认删除？"],
@@ -253,7 +283,17 @@ private final class AppStringCatalog {
             "english": "Delete %@ item(s) before closing?",
             "chinese": "关闭前删除 %@ 个项目？"
         ],
+        "closeWithKeepMessage": [
+            "english": "Move %@ item(s) to Keep before closing?",
+            "chinese": "关闭前将 %@ 个项目移入保留文件夹？"
+        ],
+        "closeWithChangesTitle": ["english": "Pending Changes", "chinese": "有待处理更改"],
+        "closeWithChangesMessage": [
+            "english": "%@ item(s) will move to Keep. %@ item(s) will be deleted.",
+            "chinese": "%@ 个项目将移入保留文件夹，%@ 个项目将删除。"
+        ],
         "moveToTrashAndClose": ["english": "Delete and Close", "chinese": "删除并关闭"],
+        "applyAndClose": ["english": "Confirm and Close", "chinese": "确认并关闭"],
         "discardChangesAndClose": ["english": "Discard Changes", "chinese": "放弃更改"],
         "restore": ["english": "Restore", "chinese": "恢复"],
         "emptyTrashBin": ["english": "Trash is empty.", "chinese": "垃圾桶是空的。"],
@@ -278,15 +318,19 @@ private final class AppStringCatalog {
             "english": "%@ file(s) could not be deleted.",
             "chinese": "%@ 个文件无法删除。"
         ],
+        "keepMoveFailedError": [
+            "english": "%@ file(s) could not be moved to Keep.",
+            "chinese": "%@ 个文件无法移入保留文件夹。"
+        ],
         "noFolderSelected": ["english": "No folder selected", "chinese": "未选择文件夹"],
         "markedForTrash": ["english": "Added to Trash", "chinese": "已加入垃圾桶"],
         "noImportNoCache": ["english": "No import • No image cache", "chinese": "不导入 • 不生成图片缓存"],
-        "appTitle": ["english": "untitled-photo-organizer", "chinese": "untitled-photo-organizer"],
+        "appTitle": ["english": "KPD", "chinese": "KPD"],
         "shortcuts": ["english": "Shortcuts", "chinese": "快捷键"],
         "gettingStartedTitle": ["english": "Getting Started", "chinese": "快速上手"],
         "gettingStartedMessage": [
-            "english": "Drop a Finder folder, photos, or videos to start organizing. untitled-photo-organizer keeps your media in place.",
-            "chinese": "拖入 Finder 文件夹、图片或视频即可开始整理。untitled-photo-organizer 会让媒体保留在原位置。"
+            "english": "Drop a Finder folder, photos, or videos to start organizing. KPD keeps your media in place.",
+            "chinese": "拖入 Finder 文件夹、图片或视频即可开始整理。KPD 会让媒体保留在原位置。"
         ],
         "gotIt": ["english": "Got It", "chinese": "明白了"],
         "privacyPromise": ["english": "Lightweight by design", "chinese": "轻量设计"],
@@ -302,9 +346,11 @@ private final class AppStringCatalog {
         "actionOpenFolder": ["english": "Open Folder", "chinese": "打开文件夹"],
         "actionPreviousItem": ["english": "Previous Item", "chinese": "上一个项目"],
         "actionNextItem": ["english": "Next Item", "chinese": "下一个项目"],
+        "actionKeepItem": ["english": "Keep Item", "chinese": "保留项目"],
         "actionMarkForTrash": ["english": "Add to Trash", "chinese": "加入垃圾桶"],
         "actionUndo": ["english": "Undo", "chinese": "撤销"],
         "actionReviewDeletes": ["english": "Open Trash", "chinese": "查看垃圾桶"],
+        "actionToggleTimeInfo": ["english": "Show/Hide Time", "chinese": "显示/隐藏时间"],
         "actionOpenNewWindow": ["english": "Open New Organizer Window", "chinese": "打开新的整理窗口"],
         "keyButton": ["english": "Button", "chinese": "按钮"],
         "keyDropFolder": ["english": "Drop Folder", "chinese": "拖入文件夹"],

@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Changed
+
+- Standardized the product, Swift modules, executable, resources, and documentation on KPD (Keep / Pending / Delete).
+- Changed the application identity to `app.kpd.KPD`; existing preferences require a one-time transfer.
+- Preserved all photo decisions and file operation behavior.
+- Added build-only packaging and removed forced process termination from the build script.
+
 ### Added
 
 - Planned V1 Grouping as the next product phase after core triage.
@@ -86,7 +93,7 @@
 - Added a V0 stabilization QA checklist for launch, browsing, sorting, trash, rename, localization, and baseline verification.
 - Standardized user-facing deletion language so app-internal pending items use Trash wording and final confirmation actions use Delete wording.
 - Changed restored trash items to return to the browsing list in the active sort order.
-- Changed the user-facing product name to `untitled-photo-organizer` while keeping the existing Swift target names for now.
+- Changed the user-facing product name to `KPD` while keeping the existing Swift target names for now.
 - Changed organizer window titles to show the opened folder name instead of a generic Organizer title.
 - Changed app window coordination so only one welcome window is restored, and only when the last organizer window closes.
 - Changed folder opening to validate supported media before opening an organizer window.

@@ -1,4 +1,4 @@
-# untitled-photo-organizer QA Checklist
+# KPD QA Checklist
 
 This checklist is for the V0 stabilization pass. It focuses on existing behavior only: browsing, trash, sorting, renaming, text, and window lifecycle.
 
@@ -64,7 +64,7 @@ This checklist is for the V0 stabilization pass. It focuses on existing behavior
 - Open Settings.
 - Switch between English and Chinese.
 - Confirm app-controlled menus, toolbar labels, settings labels, alerts, and trash labels update.
-- Edit `Sources/WASDPhoto/Resources/LocalizableContent.json`.
+- Edit `Sources/KPD/Resources/LocalizableContent.json`.
 - Use Reload Text in Settings.
 - Confirm edited UI text updates without rebuilding during development.
 - Confirm the app-internal holding area is consistently called Trash/垃圾桶.
@@ -73,7 +73,7 @@ This checklist is for the V0 stabilization pass. It focuses on existing behavior
 ## 6. V0 Baseline Verification
 
 - Run `swift build`.
-- Run `swift run WASDPhotoCoreSmokeTests`.
+- Run `swift run KPDCoreSmokeTests`.
 - Run `./script/build_and_run.sh --verify`.
 - Review `CHANGELOG.md`.
 - Review the current git diff.
